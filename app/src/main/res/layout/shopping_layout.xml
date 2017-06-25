@@ -1,0 +1,42 @@
+<cn.bingoogolapple.refreshlayout.BGARefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rl_shopping"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <cn.bingoogolapple.refreshlayout.BGAStickyNavLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.stx.xhb.xbanner.XBanner
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/banner_2"
+            android:layout_below="@+id/sp_fgx"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            app:pointsPosition="CENTER"
+            app:AutoPlayTime="4000"
+            app:pointsContainerBackground="@color/transparent">
+        </com.stx.xhb.xbanner.XBanner>
+
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_below="@+id/banner_2"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@color/white"
+            app:tabIndicatorColor="@color/orange"
+            app:tabSelectedTextColor="@color/orange"
+            app:tabTextColor="@color/black"
+            />
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            style="@style/MatchMatch"
+             />
+
+    </cn.bingoogolapple.refreshlayout.BGAStickyNavLayout>
+</cn.bingoogolapple.refreshlayout.BGARefreshLayout>

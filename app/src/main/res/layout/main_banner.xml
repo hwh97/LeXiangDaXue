@@ -1,0 +1,42 @@
+<RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.stx.xhb.xbanner.XBanner
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/banner_1"
+        android:layout_width="match_parent"
+        android:layout_height="170dp"
+        app:pointsPosition="CENTER"
+        app:AutoPlayTime="4000"
+        app:pointsContainerBackground="@color/transparent">
+        <ImageView
+            android:id="@+id/zhezhao"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@drawable/zhezhao_bg"/>
+    </com.stx.xhb.xbanner.XBanner>
+    <!--app:pointsContainerBackground="#44aaaaaa" />-->
+    <RelativeLayout
+        android:id="@+id/title_Main2_layout"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/corner_view"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp">
+        <TextView
+            android:id="@+id/title_Main2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:drawablePadding="5dp"
+            android:drawableStart="@drawable/ic_room_24px"
+            android:text="添加送货地址"
+            android:textSize="15sp"
+            android:textColor="@color/black"
+            />
+    </RelativeLayout>
+</RelativeLayout>

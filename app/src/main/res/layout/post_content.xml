@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/header"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <View
+        android:layout_width="match_parent"
+        android:layout_below="@+id/Post_content"
+        android:layout_height="6dp"
+        android:background="@color/bg_color" />
+        <LinearLayout
+            android:id="@+id/Post_info"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="50dp">
+            <cn.hwwwwh.lexiangdaxue.other.XCRoundImageView
+                android:layout_marginStart="10dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/headpic"/>
+            <RelativeLayout
+                android:layout_marginStart="5dp"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent">
+                <TextView
+                    android:layout_alignParentTop="true"
+                    android:textSize="15sp"
+                    android:id="@+id/username"
+                    android:text="用户名"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/postTime"
+                    android:layout_alignParentBottom="true"
+                    android:textSize="12sp"
+                    android:text="4小时前"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+            <ImageView
+                android:src="@drawable/ic_good"
+                android:layout_marginRight="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/good_count"
+                android:text="999+"
+                android:layout_marginRight="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/Post_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:layout_below="@id/Post_info"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/post_content"
+                android:textColor="@color/black"
+                android:text="我是测试数据我是测试数据我是测试数据我是测试数据我是测试数据我是测试数据我是测试数据"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <cn.hwwwwh.lexiangdaxue.FgSecondClass.NineGridPicLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/layout_nine_grid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                app:sapcing="4dp" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/pt_fgx"
+            android:layout_width="match_parent"
+            android:layout_marginTop="5dp"
+            android:layout_height="0.4dp"
+            android:background="#cdcdcd" />
+
+
+
+    <RelativeLayout
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:textStyle="bold"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/black"
+                android:text="评论"
+                android:textSize="18sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/noCommentRL"
+        android:visibility="gone"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/zeroComment"
+            android:layout_centerInParent="true"
+            android:layout_width="200dp"
+            android:layout_height="200dp" />
+    </RelativeLayout>
+</LinearLayout>

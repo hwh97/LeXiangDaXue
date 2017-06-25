@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/white"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/goodName"
+        android:layout_marginLeft="15dp"
+        android:textSize="14dp"
+        android:text="泰国进口咪咪"
+        android:layout_width="wrap_content"
+        android:gravity="center"
+        android:layout_height="50dp" />
+    <TextView
+        android:id="@+id/pay_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="×1"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="80dp" />
+    <TextView
+        android:id="@+id/pay_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="￥12"
+        android:textColor="@color/result_view"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp" />
+    <View
+        android:id="@+id/fgx8"
+        android:layout_width="match_parent"
+        android:layout_below="@id/goodName"
+        android:layout_height="0.4dp"
+        android:background="#cdcdcd" />
+</RelativeLayout>

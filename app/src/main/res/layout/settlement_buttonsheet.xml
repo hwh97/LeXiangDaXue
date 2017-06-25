@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <RelativeLayout
+        android:id="@+id/title_hint"
+        android:background="@color/bg_color"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+        <TextView
+            android:layout_centerInParent="true"
+            android:text="选择送达时间"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_below="@+id/title_hint"
+        android:background="@color/bg_color"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/today"
+                android:background="@color/white"
+                android:text="今天"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:gravity="center_vertical|center_horizontal" />
+            <View
+                android:id="@+id/fgx9"
+                android:layout_below="@id/today"
+                android:layout_width="match_parent"
+                android:layout_above="@id/pay_view"
+                android:layout_height="0.4dp"
+                android:background="#cdcdcd" />
+            <TextView
+                android:id="@+id/tomorrow"
+                android:layout_below="@id/fgx9"
+                android:background="@color/white"
+                android:text="明天"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:gravity="center_vertical|center_horizontal" />
+
+        </RelativeLayout>
+        <FrameLayout
+            android:id="@+id/settlement_container"
+            android:layout_weight="3"
+            android:background="@color/white"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_gravity="center"
+                android:layout_width="100dp"
+                android:layout_height="200dp"
+                android:src="@null"/>
+        </FrameLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_color"
+    tools:context="cn.hwwwwh.lexiangdaxue.SelltementClass.activity.NoteActivity">
+<RelativeLayout
+    android:id="@+id/toolbar_view"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_note"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        app:popupTheme="@style/AppTheme.PopupOverlay"
+        android:titleTextAppearance="@style/TitleText"
+        android:backgroundTint="@color/white">
+    </android.support.v7.widget.Toolbar>
+</RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/edit_view"
+        android:layout_below="@+id/toolbar_view"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="120dp">
+        <EditText
+            android:id="@+id/note_edit"
+            android:hint="口味、偏好等要求"
+            android:background="#f7f7f7"
+            android:gravity="top"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:textColor="@color/black"
+            android:textColorHint="@color/darkgray"
+            android:textSize="14sp"
+            android:maxLength="100" />
+        <TextView
+            android:id="@+id/note_num"
+            android:textColor="@color/darkgray"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0/100"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/note_view2"
+        android:layout_below="@+id/edit_view"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:background="#f7f7f7"
+        android:layout_width="match_parent"
+        android:layout_height="130dp">
+        <TextView
+            android:id="@+id/note_title"
+            android:paddingStart="10dp"
+            android:paddingTop="10dp"
+            android:text="常用备注"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/note1"
+            android:layout_marginRight="18dp"
+            android:layout_marginTop="15dp"
+            android:layout_below="@id/note_title"
+            android:layout_toStartOf="@+id/note2"
+            android:text="不放辣"
+            android:background="@drawable/corner_note"
+            android:layout_width="80dp"
+            android:gravity="center"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/note2"
+            android:layout_marginTop="15dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/note_title"
+            android:text="少加辣"
+            android:background="@drawable/corner_note"
+            android:layout_width="80dp"
+            android:gravity="center"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/note3"
+            android:layout_toEndOf="@+id/note2"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="15dp"
+            android:layout_below="@id/note_title"
+            android:text="多加辣"
+            android:background="@drawable/corner_note"
+            android:layout_width="80dp"
+            android:gravity="center"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/note4"
+            android:layout_marginEnd="18dp"
+            android:layout_marginTop="15dp"
+            android:layout_below="@id/note1"
+            android:layout_toStartOf="@+id/note5"
+            android:text="不放蒜"
+            android:background="@drawable/corner_note"
+            android:layout_width="80dp"
+            android:gravity="center"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/note5"
+            android:layout_marginTop="15dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/note2"
+            android:text="不放香菜"
+            android:background="@drawable/corner_note"
+            android:layout_width="80dp"
+            android:gravity="center"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/note6"
+            android:layout_toEndOf="@+id/note5"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="15dp"
+            android:layout_below="@id/note3"
+            android:text="不放葱"
+            android:background="@drawable/corner_note"
+            android:layout_width="80dp"
+            android:gravity="center"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+    <Button
+        android:id="@+id/note_finish"
+        android:layout_below="@+id/note_view2"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/note_bg"
+        android:text="完成"
+        android:textSize="18sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</RelativeLayout>

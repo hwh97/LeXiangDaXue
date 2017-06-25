@@ -1,0 +1,53 @@
+<cn.bingoogolapple.refreshlayout.BGARefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fg2_BGARefreshLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <cn.bingoogolapple.refreshlayout.BGAStickyNavLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp">
+            <ImageView
+                android:src="@drawable/fg2_header"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:scaleType="fitXY" />
+            <TextView
+                android:background="@color/white"
+                android:textColor="@color/black"
+                android:lineSpacingExtra="3dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingRight="15dp"
+                android:paddingLeft="15dp"
+                android:text="有人说大学是我们人生的另一个新起点,每一天都值得记录下来，快来分享你的大学生活吧~~"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/fg2_tabLayout"
+            android:layout_below="@+id/banner_2"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@color/white"
+            app:tabIndicatorColor="@color/orange"
+            app:tabSelectedTextColor="@color/orange"
+            app:tabTextColor="@color/black"
+            />
+        <android.support.v4.view.ViewPager
+            android:id="@+id/fg2_viewpager"
+            style="@style/MatchMatch"
+            />
+
+    </cn.bingoogolapple.refreshlayout.BGAStickyNavLayout>
+</cn.bingoogolapple.refreshlayout.BGARefreshLayout>

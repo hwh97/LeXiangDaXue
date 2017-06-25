@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_shopping"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        app:popupTheme="@style/AppTheme.PopupOverlay"
+        app:layout_collapseMode="pin"
+        android:backgroundTint="@color/white" >
+        <TextView
+            android:id="@+id/product_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="18sp"
+            android:text="领卷购"
+            android:textStyle="normal"
+            android:textColor="#000000"
+            android:textIsSelectable="false" />
+    </android.support.v7.widget.Toolbar>
+
+    <View
+        android:id="@+id/sp_fgx"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/toolbar_shopping"
+        android:layout_height="0.4dp"
+        android:background="#cdcdcd" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include
+            layout="@layout/shopping_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <ImageView
+            android:id="@+id/toTop"
+            android:visibility="visible"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="30dp"
+            android:layout_marginEnd="20dp"
+            android:src="@drawable/backtotop"
+            android:layout_height="50dp"
+            android:layout_width="50dp" />
+    </FrameLayout>
+</LinearLayout>

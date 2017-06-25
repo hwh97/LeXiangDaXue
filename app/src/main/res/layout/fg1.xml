@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+<cn.bingoogolapple.refreshlayout.BGARefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:cube_ptr="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mRefreshLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+        <cn.hwwwwh.lexiangdaxue.other.ObservableScrollView
+            android:id="@+id/scrollview"
+            android:scrollbars="none"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true">
+            <LinearLayout
+                android:orientation="vertical"
+                android:id="@+id/store_house_ptr_image_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/bg_color"
+                android:clickable="true">
+                <include layout="@layout/main_banner"/>
+                <include layout="@layout/main_function"/>
+                <include layout="@layout/main_content_1"/>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="500dp">
+
+                </RelativeLayout>
+            </LinearLayout>
+        </cn.hwwwwh.lexiangdaxue.other.ObservableScrollView>
+</cn.bingoogolapple.refreshlayout.BGARefreshLayout>
+
+    <RelativeLayout
+        android:id="@+id/title_Main_layout"
+        android:layout_width="match_parent"
+        android:layout_height="55dp">
+        <ImageView
+            android:id="@+id/localicon_icon"
+            android:src="@drawable/ic_room_24px"
+            android:layout_toStartOf="@+id/title_Main"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/title_Main"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="添加送货地址"
+            android:textColor="@color/transparent"
+            android:background="#00000000"
+            android:textSize="18sp"
+            />
+    </RelativeLayout>
+</RelativeLayout>

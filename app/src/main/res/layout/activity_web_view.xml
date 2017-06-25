@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_web_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="cn.hwwwwh.lexiangdaxue.WebViewActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_wb"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white">
+        <TextView
+            android:id="@+id/product_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="18sp"
+            android:text="购买"
+            android:textStyle="normal"
+            android:textColor="#000000"
+            android:textIsSelectable="false" />
+        <Button
+            android:id="@+id/refresh_wb"
+            android:background="@drawable/ic_refresh_black_24dp"
+            android:layout_gravity="end"
+            android:layout_marginEnd="12dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp" />
+    </android.support.v7.widget.Toolbar>
+
+    <RelativeLayout
+        android:id="@+id/bottom_view"
+        android:layout_gravity="bottom"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@android:color/darker_gray">
+        <Button
+            android:id="@+id/close_view"
+            android:background="@drawable/ic_clear_black_24dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="10dp"
+            android:layout_centerVertical="true"
+            android:layout_width="24dp"
+            android:layout_height="24dp" />
+
+        <RelativeLayout
+            android:id="@+id/quanDeatail"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="10dp"
+            android:visibility="invisible"
+            android:layout_toStartOf="@+id/button_wb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="到期 2017-02-08"
+                android:textSize="14sp"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/Quan_time" />
+            <TextView
+                android:id="@+id/Quan_surplus"
+                android:textSize="14sp"
+                android:layout_marginStart="4dp"
+                android:layout_centerVertical="true"
+                android:text="剩余10000张"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/Quan_time"/>
+        </RelativeLayout>
+        <Button
+            android:text="领50元券"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            android:layout_width="wrap_content"
+            android:background="@drawable/conner_webview"
+            android:id="@+id/button_wb"
+            android:layout_height="30dp"
+            android:layout_marginEnd="10dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
+
+    <WebView
+        android:id="@+id/webView"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="40dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </WebView>
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:layout_marginTop="50dp"
+        android:id="@+id/progressBar" />
+</FrameLayout>
