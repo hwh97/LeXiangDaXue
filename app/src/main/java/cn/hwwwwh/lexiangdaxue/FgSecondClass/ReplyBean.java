@@ -19,6 +19,7 @@ public class ReplyBean {
     public boolean ispop=false;
     public String Reply_replyadmin;
     public String Repky_replyemail;
+    public boolean isZan=false;
 
     public int getReply_commentcount() {
         return Reply_commentcount;
@@ -115,4 +116,9 @@ public class ReplyBean {
     public void setReply_replyadmin(String reply_replyadmin) {
         Reply_replyadmin = reply_replyadmin;
     }
+
+    public void setZan(boolean zan) {
+        isZan = zan;
+    }
+
 }

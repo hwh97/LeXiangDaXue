@@ -55,7 +55,9 @@
                 android:theme="@style/AppTheme.NoActionBar" />
             <activity
                 android:name=".FgSecondClass.PostActivity"
-                android:theme="@style/AppTheme.NoActionBar"/>
+                android:theme="@style/AppTheme.NoActionBar"
+                android:windowSoftInputMode="adjustResize"
+                />
     </application>
 
 </manifest>

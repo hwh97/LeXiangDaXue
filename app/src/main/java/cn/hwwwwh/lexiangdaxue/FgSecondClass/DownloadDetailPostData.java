@@ -1,11 +1,14 @@
 package cn.hwwwwh.lexiangdaxue.FgSecondClass;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.Image;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +18,17 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.bumptech.glide.Glide;
+import com.ldoublem.thumbUplib.ThumbUpView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.squareup.picasso.Picasso;
+import com.ytying.emoji.StringUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,10 +37,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import cn.hwwwwh.lexiangdaxue.LoginActivity;
+import cn.hwwwwh.lexiangdaxue.LoginRegister.AppController;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SQLiteHandler;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
 import cn.hwwwwh.lexiangdaxue.R;
+import cn.hwwwwh.lexiangdaxue.other.AppConfig;
 import cn.hwwwwh.lexiangdaxue.other.HttpUtils;
 import cn.hwwwwh.lexiangdaxue.other.ParserJson;
 
@@ -45,16 +60,26 @@ public class DownloadDetailPostData extends AsyncTask<String,Void,List<DetailPos
     private Context context;
     private TextView username;
     private TextView postTime;
-    private TextView good_count;
+    private TextView post_goodcount;
     private TextView post_content;
     private NineGridPicLayout layout_nine_grid;
     private ImageView zeroComment;
     private RelativeLayout noCommentRL;
+    private SessionManager sessionManager;
+    private SQLiteHandler sqLiteHandler;
+    private ThumbUpView zan_btn;
+    public HashMap<String,String> hashMap;
+    private ProgressDialog pDialog;
 
 
     public DownloadDetailPostData(Context context,View itemView){
         this.context=context;
         this.itemView=itemView;
+        sessionManager=new SessionManager(context);
+        sqLiteHandler=new SQLiteHandler(context);
+        pDialog=new ProgressDialog(context);
+        pDialog.setCancelable(true);
+        hashMap=sqLiteHandler.getUserDetails();
     }
 
     @Override
@@ -63,7 +88,7 @@ public class DownloadDetailPostData extends AsyncTask<String,Void,List<DetailPos
         String Url=params[0];
         if(HttpUtils.isNetConn(context)){
             byte[]b=null;
-            b=HttpUtils.downloadFromNet(Url);
+            b =HttpUtils.downloadFromNet(Url);
             String jsonString=new String(b);
             Log.d("lexiangdaxueTag",jsonString);
             try {
@@ -92,6 +117,9 @@ public class DownloadDetailPostData extends AsyncTask<String,Void,List<DetailPos
                         detailPostBean.setPicsData(list2);
                     }
                 }
+                if(obj.has("Post_isZan")){
+                    detailPostBean.setZan(true);
+                }
                 list.add(detailPostBean);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -101,20 +129,57 @@ public class DownloadDetailPostData extends AsyncTask<String,Void,List<DetailPos
     }
 
     @Override
-    protected void onPostExecute(List<DetailPostBean>  list) {
+    protected void onPostExecute(final List<DetailPostBean>  list) {
         super.onPostExecute(list);
         if(list!=null){
             username=(TextView)itemView.findViewById(R.id.username);
             postTime=(TextView)itemView.findViewById(R.id.postTime);
-            good_count=(TextView)itemView.findViewById(R.id.good_count);
+            post_goodcount=(TextView)itemView.getRootView().findViewById(R.id.post_goodcount);
+            zan_btn=(ThumbUpView)itemView.getRootView().findViewById(R.id.zan);
+            zan_btn.setOnThumbUp(new ThumbUpView.OnThumbUp() {
+                @Override
+                public void like(boolean like) {
+                    if(like){
+                        if(sessionManager.isLoggedIn()) {
+                            list.get(0).setZan(true);
+                            int count = (Integer.parseInt(post_goodcount.getText().toString()) + 1);
+                            post_goodcount.setText(count + "");
+                            list.get(0).setGoodCount(count+"");
+                            sendPost(hashMap,list.get(0).getPostUuid(),"0");
+                        }else{
+                            zan_btn.stopAnim();
+                            logoutUser();
+                        }
+                    }else{
+                        if(sessionManager.isLoggedIn()) {
+                            list.get(0).setZan(false);
+                            int count=(Integer.parseInt(post_goodcount.getText().toString())-1);
+                            post_goodcount.setText(count+"");
+                            list.get(0).setGoodCount(count+"");
+                            sendPost(hashMap,list.get(0).getPostUuid(),"1");
+                        }else{
+                            zan_btn.stopAnim();
+                            zan_btn.setLike();
+                            logoutUser();
+                        }
+                    }
+                }
+            });
+            if (list.get(0).isZan){
+                zan_btn.setLike();
+            }else{
+                zan_btn.setUnlike();
+            }
             post_content=(TextView)itemView.findViewById(R.id.post_content);
             layout_nine_grid=(NineGridPicLayout)itemView.findViewById(R.id.layout_nine_grid);
+            layout_nine_grid.setContext(context);
             zeroComment=(ImageView)itemView.findViewById(R.id.zeroComment);
             noCommentRL=(RelativeLayout)itemView.findViewById(R.id.noCommentRL);
             username.setText(list.get(0).getPostAdmin());
             postTime.setText(list.get(0).getCreateTime());
-            good_count.setText(list.get(0).getGoodCount());
-            post_content.setText(list.get(0).getPostContent());
+            post_goodcount.setText(list.get(0).getGoodCount());
+            SpannableString content= StringUtil.stringToSpannableString(list.get(0).getPostContent().toString(),context);
+            post_content.setText(content);
             int imgs=Integer.parseInt(list.get(0).getImgNum());
             List<String> picsData=list.get(0).getPicsData();
             // new DownloadDetailPicData2(context, layout).execute("http://cs.hwwwwh.cn/admin/SinglePostPicApi.php?post_uuid=" + data.getPostUuid());
@@ -148,5 +213,72 @@ public class DownloadDetailPostData extends AsyncTask<String,Void,List<DetailPos
         }else{
             Toast.makeText(context, "加载出错", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void showDialog() {
+        if (!pDialog.isShowing())
+            pDialog.show();
+    }
+
+    private void hideDialog() {
+        if (pDialog.isShowing())
+            pDialog.dismiss();
+    }
+
+    public void sendPost(final HashMap<String, String> hashMap, final String post_uuid, final String type){
+        pDialog.setMessage("提交数据中...");
+        showDialog();
+
+        StringRequest stringRequest=new StringRequest(Request.Method.POST, AppConfig.urlHandleZan, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                hideDialog();
+                try {
+                    JSONObject obj=new JSONObject(response);
+                    boolean error = obj.getBoolean("error");
+                    if (!error){
+                        Log.d("Testlexiangdaxue","操作成功");
+                    }else{
+                        String error_info=null;
+                        if(obj.has("error_msg")) {
+                            error_info = obj.getString("error_msg");
+                        }
+                        Log.d("Testlexiangdaxue","传输参数失败"+error_info);
+                        hideDialog();
+                        Toast.makeText(context,"未知错误",Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        },new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                hideDialog();
+                Log.e("lexiangdaxueError", error.getMessage());
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params=new HashMap<String, String>();
+                params.put("name",hashMap.get("name"));
+                params.put("email",hashMap.get("email"));
+                params.put("post_uuid",post_uuid);
+                params.put("isposts","1");
+                params.put("type",type);
+                return params;
+            }
+        };
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(30*1000,1,1f));
+        AppController.getInstance().addToRequestQueue(stringRequest,"DetailPostAdapter");
+    }
+
+    private void logoutUser(){
+        sessionManager.setLogin(false);
+        sqLiteHandler.deleteUsers();
+        // Launching the login activity
+        Intent intent = new Intent(context, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 }

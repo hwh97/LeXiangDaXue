@@ -26,6 +26,8 @@ public class postData {
     public String postUuid;
     public boolean isZan=false;
     public List<String> PicsData;
+    //0为未判定过，1为显示显示全部按钮，2为不显示
+    public int isShowAll=0;
 
     public void setId(String id) {
         Id = id;
@@ -177,5 +179,13 @@ public class postData {
 
     public List<String> getPicsData() {
         return PicsData;
+    }
+
+    public void setIsShowAll(int isShowAll) {
+        this.isShowAll = isShowAll;
+    }
+
+    public int getIsShowAll() {
+        return isShowAll;
     }
 }

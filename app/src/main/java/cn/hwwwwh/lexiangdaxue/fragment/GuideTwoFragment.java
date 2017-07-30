@@ -27,6 +27,7 @@ import cn.hwwwwh.lexiangdaxue.LoginActivity;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SQLiteHandler;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
 import cn.hwwwwh.lexiangdaxue.R;
+import cn.hwwwwh.lexiangdaxue.ShoppingClass.fragment.PageFragment;
 import cn.hwwwwh.lexiangdaxue.other.BaseFragment;
 import cn.hwwwwh.lexiangdaxue.other.HttpUtils;
 
@@ -45,6 +46,7 @@ public class GuideTwoFragment extends BaseFragment implements BGARefreshLayout.B
     //用户信息
     private SessionManager session;
     private SQLiteHandler db;
+    private ImageView toTop;
 
 
     @Override
@@ -54,12 +56,14 @@ public class GuideTwoFragment extends BaseFragment implements BGARefreshLayout.B
         fg2_viewPager=getViewById(R.id.fg2_viewpager);
         mRefreshLayout=getViewById(R.id.fg2_BGARefreshLayout);
         fg2_Toolbar=getViewById(R.id.fg2_toolbar);
+        toTop=getViewById(R.id.toTop);
         edit=getViewById(R.id.edit);
     }
 
     @Override
     protected void setListener() {
         edit.setOnClickListener(this);
+        toTop.setOnClickListener(this);
     }
 
     @Override
@@ -76,13 +80,12 @@ public class GuideTwoFragment extends BaseFragment implements BGARefreshLayout.B
     protected void lazyLoad() {
         if(!isLazyLoad){
             isLazyLoad=true;
-            mFragments = new Fragment[3];
+            mFragments = new Fragment[2];
             mFragments[0]  = FgSecondPageFragment.newInstance(0);
             mFragments[1] = FgSecondPageFragment.newInstance(1);
-            mFragments[2] = FgSecondPageFragment.newInstance(2);
             fg2_fragmentPagerAdapter=new fg2_FragmentPagerAdapter(getFragmentManager(),mFragments);
             fg2_viewPager.setAdapter(fg2_fragmentPagerAdapter);
-            fg2_viewPager.setOffscreenPageLimit(3);
+            fg2_viewPager.setOffscreenPageLimit(2);
             fg2_tabLayout.setupWithViewPager(fg2_viewPager);
         }
     }
@@ -104,6 +107,18 @@ public class GuideTwoFragment extends BaseFragment implements BGARefreshLayout.B
                     startActivityForResult(intent,2000);
                 }
                 break;
+            case R.id.toTop:
+                switch (fg2_viewPager.getCurrentItem()){
+                    case 0:
+                        ((FgSecondPageFragment) mFragments[0]).onClick(toTop);
+                        break;
+                    case 1:
+                        ((FgSecondPageFragment) mFragments[1]).onClick(toTop);
+                        break;
+                    default:
+                        break;
+                }
+                break;
         }
     }
 
@@ -111,6 +126,7 @@ public class GuideTwoFragment extends BaseFragment implements BGARefreshLayout.B
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode==RESULT_OK){
+            fg2_viewPager.setCurrentItem(0);
            beginRefreshing();
         }
     }
@@ -125,8 +141,8 @@ public class GuideTwoFragment extends BaseFragment implements BGARefreshLayout.B
 
     public class fg2_FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
 
-        final int PAGE_COUNT=3;
-        private String tabTitles[]=new String[]{"最新","热门","精华"};
+        final int PAGE_COUNT=2;
+        private String tabTitles[]=new String[]{"最新","热门"};
         private Context context;
         private Fragment[] fragments;
 
@@ -189,9 +205,6 @@ public class GuideTwoFragment extends BaseFragment implements BGARefreshLayout.B
                 case 1:
                     ((FgSecondPageFragment)mFragments[1]).onBGARefreshLayoutBeginRefreshing(mRefreshLayout);
                     break;
-                case 2:
-                    ((FgSecondPageFragment)mFragments[2]).onBGARefreshLayoutBeginRefreshing(mRefreshLayout);
-                    break;
                 default:
                     break;
             }
@@ -214,8 +227,6 @@ public class GuideTwoFragment extends BaseFragment implements BGARefreshLayout.B
                     return ((FgSecondPageFragment) mFragments[0]).onBGARefreshLayoutBeginLoadingMore(mRefreshLayout);
                 case 1:
                     return ((FgSecondPageFragment) mFragments[1]).onBGARefreshLayoutBeginLoadingMore(mRefreshLayout);
-                case 2:
-                    return ((FgSecondPageFragment) mFragments[2]).onBGARefreshLayoutBeginLoadingMore(mRefreshLayout);
                 default:
                     return true;
             }

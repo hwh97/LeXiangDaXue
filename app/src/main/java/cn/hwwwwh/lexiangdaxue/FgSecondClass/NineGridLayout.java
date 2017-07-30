@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +47,8 @@ public abstract class NineGridLayout extends ViewGroup {
     private List<PicBean> mUrlList = new ArrayList<>();
     //0 为Glide 1 为ImageLoader
     private int loadImageMode=0;
+    //默认大小
+    private int singleImageSize=px2dp(150);
 
     public NineGridLayout(Context context) {
         super(context);
@@ -66,6 +69,18 @@ public abstract class NineGridLayout extends ViewGroup {
         if (getListSize(mUrlList) == 0) {
             setVisibility(GONE);
         }
+    }
+
+    private int  px2dp(int px){
+        px= (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, px , getResources()
+                        .getDisplayMetrics());
+        Log.d("px",px+"");
+        return px;
+    }
+
+    public void setSingleImageSize(int singleImageSize) {
+        this.singleImageSize = px2dp(singleImageSize);
     }
 
     @Override
@@ -143,9 +158,9 @@ public abstract class NineGridLayout extends ViewGroup {
 
             //避免在ListView中一张图未加载成功时，布局高度受其他item影响
             LayoutParams params = getLayoutParams();
-            params.height = mSingleWidth;
+            params.height = singleImageSize;
             setLayoutParams(params);
-            imageView.layout(0, 0, mSingleWidth, mSingleWidth);
+            imageView.layout(0, 0, singleImageSize, singleImageSize);
 
             boolean isShowDefualt = displayOneImage(imageView, url, mTotalWidth,Integer.parseInt(mUrlList.get(0).getPic_width()),Integer.parseInt(mUrlList.get(0).getPic_height()),loadImageMode);
             if (isShowDefualt) {

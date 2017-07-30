@@ -19,6 +19,7 @@ public class DetailPostBean {
     public String picture1Width;
     public String postUuid;
     public List<String> PicsData;
+    public boolean isZan=false;
 
     public void setId(String id) {
         Id = id;
@@ -118,4 +119,9 @@ public class DetailPostBean {
     public List<String> getPicsData() {
         return PicsData;
     }
+
+    public void setZan(boolean zan) {
+        isZan = zan;
+    }
+
 }

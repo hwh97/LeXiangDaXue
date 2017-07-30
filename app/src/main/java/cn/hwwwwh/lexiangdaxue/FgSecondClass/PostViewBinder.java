@@ -149,7 +149,7 @@ public class PostViewBinder extends ItemViewBinder<postData,PostViewBinder.ViewH
 //            thirdRl=(RelativeLayout)itemView.findViewById(R.id.thirdRl);
 //            pic_num=(TextView)itemView.findViewById(R.id.pic_num);
 //            imgs=(LinearLayout)itemView.findViewById(R.id.imgs);
-            seeAll=(TextView)itemView.findViewById(R.id.seeAll);
+            //seeAll=(TextView)itemView.findViewById(R.id.seeAll);
             LL_zan=(LinearLayout)itemView.findViewById(R.id.LL_zan);
             zan_pic=(ThumbUpView)itemView.findViewById(R.id.zan_pic);
             post_rv=(RelativeLayout)itemView.findViewById(R.id.post_rv);

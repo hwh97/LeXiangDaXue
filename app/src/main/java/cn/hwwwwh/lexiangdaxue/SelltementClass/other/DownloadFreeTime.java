@@ -27,6 +27,7 @@ public class DownloadFreeTime extends AsyncTask<String,Void,List<Time>> {
     private RecyclerView recyclerView;
     private boolean isToday;
     private Activity activity;
+
     public DownloadFreeTime (Context context,RecyclerView recyclerView,boolean isToday,Activity activity){
         this.context=context;
         this.recyclerView=recyclerView;

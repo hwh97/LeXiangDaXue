@@ -15,9 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 import cn.hwwwwh.lexiangdaxue.ImageLoader.SelectPhotoAdapter;
+import cn.hwwwwh.lexiangdaxue.other.BaseActivity;
 import cn.hwwwwh.lexiangdaxue.other.PinchImageView;
 
-public class ShowPhotoActivity extends AppCompatActivity implements ViewPager.OnClickListener,ViewPager.OnPageChangeListener{
+public class ShowPhotoActivity extends BaseActivity implements ViewPager.OnClickListener,ViewPager.OnPageChangeListener{
 
     private ViewPager vp;
     private ViewPagerAdapter vpAdapter;
@@ -29,28 +30,36 @@ public class ShowPhotoActivity extends AppCompatActivity implements ViewPager.On
     private ImageView deletePhoto;
     private ArrayList<SelectPhotoAdapter.SelectPhotoEntity> selectedPhotos;
 
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void initView(Bundle savedInstanceState) {
         setContentView(R.layout.activity_show_photo);
-        selectedPhotos = getIntent().getParcelableArrayListExtra("selectPhotos");
-        Log.i("Alex","选择的图片是"+selectedPhotos);
         showphoto_toolbar=(Toolbar)findViewById(R.id.showphoto_toolbar);
-        showphoto_toolbar.setNavigationIcon(R.drawable.ic_keyboard_backspace_24dp1);
+        vp = (ViewPager) findViewById(R.id.photoViewPaper);
+        deletePhoto=(ImageView)findViewById(R.id.deletePhoto);
+    }
+
+    @Override
+    protected void setListener() {
         showphoto_toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
+    }
+
+    @Override
+    protected void processLogic(Bundle savedInstanceState) {
+        selectedPhotos = getIntent().getParcelableArrayListExtra("selectPhotos");
+        Log.i("Alex","选择的图片是"+selectedPhotos);
+        showphoto_toolbar.setNavigationIcon(R.drawable.ic_keyboard_backspace_24dp1);
         showphoto_toolbar.setTitle("1/"+selectedPhotos.size());
         showphoto_toolbar.setTitleTextAppearance(getApplicationContext(),R.style.WindowTitle);
         data=getData(selectedPhotos);
-        vp = (ViewPager) findViewById(R.id.photoViewPaper);
         vpAdapter = new ViewPagerAdapter(data,this);
         vp.setAdapter(vpAdapter);
         vp.addOnPageChangeListener(this);
-        deletePhoto=(ImageView)findViewById(R.id.deletePhoto);
         deletePhoto.setOnClickListener(this);
         vp.setOffscreenPageLimit(9);
     }

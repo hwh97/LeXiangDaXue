@@ -30,4 +30,7 @@ public class AppConfig {
 
     public static String urlHandleZan="http://cs.hwwwwh.cn/admin/HandleZan.php";
 
+    public static String urlHandleReply="http://cs.hwwwwh.cn/admin/HandleReply.php";
+
+
 }

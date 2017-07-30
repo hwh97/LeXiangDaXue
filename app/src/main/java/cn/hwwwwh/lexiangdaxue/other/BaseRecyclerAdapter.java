@@ -121,6 +121,7 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<Recycl
     }
 
     public abstract RecyclerView.ViewHolder onCreate(ViewGroup parent, final int viewType);
+
     public abstract void onBind(RecyclerView.ViewHolder viewHolder, int RealPosition, T data);
 
     public class Holder extends RecyclerView.ViewHolder {

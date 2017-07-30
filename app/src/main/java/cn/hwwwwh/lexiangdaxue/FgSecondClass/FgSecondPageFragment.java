@@ -1,20 +1,27 @@
 package cn.hwwwwh.lexiangdaxue.FgSecondClass;
 
 import android.graphics.Canvas;
+import android.media.Image;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
 import cn.bingoogolapple.refreshlayout.BGARefreshLayout;
 import cn.hwwwwh.lexiangdaxue.MainActivity;
 import cn.hwwwwh.lexiangdaxue.R;
+import cn.hwwwwh.lexiangdaxue.ShoppingClass.other.RecyclerViewScrollDetector;
 import cn.hwwwwh.lexiangdaxue.ShoppingClass.other.SpacesItemDecoration;
 import cn.hwwwwh.lexiangdaxue.fragment.GuideTwoFragment;
 import cn.hwwwwh.lexiangdaxue.other.BaseFragment;
@@ -24,16 +31,18 @@ import cn.hwwwwh.lexiangdaxue.other.HttpUtils;
  * Created by 97481 on 2017/3/4/ 0004.
  */
 
-public class FgSecondPageFragment extends BaseFragment implements BGARefreshLayout.BGARefreshLayoutDelegate{
+public class FgSecondPageFragment extends BaseFragment implements BGARefreshLayout.BGARefreshLayoutDelegate,View.OnClickListener{
 
     public static final String PAGE="PAGE";
     public int mPage;
     private int page=1;
-    //method为排序方法，0为最新，1热门，2为精华
+    //method为排序方法，0为最新，1热门
     private int method=1;
     private RecyclerView recyclerView;
     private postAdapter adapter;
     private boolean isLazyLoad=false;
+    private ImageView toTop;
+    private ViewPager fg2_viewPager;
 
     public static FgSecondPageFragment newInstance(int page){
         Bundle args=new Bundle();
@@ -54,41 +63,80 @@ public class FgSecondPageFragment extends BaseFragment implements BGARefreshLayo
     protected void initView(Bundle savedInstanceState) {
         setContentView(R.layout.fgsecond_fragment);
         recyclerView=getViewById(R.id.fg2_recycleView);
+        toTop=(ImageView)getActivity().findViewById(R.id.toTop);
+        fg2_viewPager = (ViewPager) getActivity().findViewById(R.id.fg2_viewpager);
     }
 
     @Override
     protected void setListener() {
-
-    }
-
-    @Override
-    protected void processLogic(Bundle savedInstanceState) {
-        recyclerView.getItemAnimator().setChangeDuration(0);
-        adapter=new postAdapter(mApp);
-        recyclerView.setAdapter(adapter);
-        SpacesItemDecoration spacesItemDecoration=new SpacesItemDecoration(1);
-        recyclerView.setLayoutManager(new LinearLayoutManager(mApp, LinearLayoutManager.VERTICAL, false));
-        recyclerView.addItemDecoration(spacesItemDecoration);
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        fg2_viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    Picasso.with(mApp).resumeTag(mApp);
-                } else if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                    Picasso.with(mApp).pauseTag(mApp);
-                } else if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
-                    Picasso.with(mApp).pauseTag(mApp);
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                toTop.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        recyclerView.addOnScrollListener(new RecyclerViewScrollDetector() {
+            @Override
+            public void onScrollUp() {
+                if(toTop.getVisibility()==View.VISIBLE){
+                    toTop.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void onScrollDown() {
+                if(toTop.getVisibility()!=View.VISIBLE){
+                    toTop.setVisibility(View.VISIBLE);
+                }
+            }
+            //以滑进顶部识别区1000
+            @Override
+            public void onScrollTop() {
+                if(toTop.getVisibility()==View.VISIBLE){
+                    toTop.setVisibility(View.INVISIBLE);
                 }
             }
         });
     }
 
     @Override
+    protected void processLogic(Bundle savedInstanceState) {
+        recyclerView.getItemAnimator().setChangeDuration(0);
+        adapter=new postAdapter(getActivity());
+        recyclerView.setAdapter(adapter);
+        SpacesItemDecoration spacesItemDecoration=new SpacesItemDecoration(1);
+        recyclerView.setLayoutManager(new LinearLayoutManager(mApp, LinearLayoutManager.VERTICAL, false));
+        recyclerView.addItemDecoration(spacesItemDecoration);
+    }
+
+    @Override
     protected void lazyLoad() {
         if(!isLazyLoad){
             isLazyLoad=true;
-            new DownloadPostData(mApp, recyclerView, adapter,page).execute("http://cs.hwwwwh.cn/admin/postsApi.php?page=1");
+            new DownloadPostData(mApp, recyclerView, adapter,page).execute("http://cs.hwwwwh.cn/admin/postsApi.php?page=1"+"&method="+method);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.toTop:
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+                    recyclerView.smoothScrollToPosition(0);
+                }else{
+                    recyclerView.scrollToPosition(0);
+                }
+                break;
         }
     }
 
@@ -112,7 +160,7 @@ public class FgSecondPageFragment extends BaseFragment implements BGARefreshLayo
                 protected void onPostExecute(Void aVoid) {
                     page=1;
                     // 加载完毕后在 UI 线程结束下拉刷新
-                    new DownloadPostData(mApp, recyclerView, adapter,page).execute("http://cs.hwwwwh.cn/admin/postsApi.php?page=1");
+                    new DownloadPostData(mApp, recyclerView, adapter,page).execute("http://cs.hwwwwh.cn/admin/postsApi.php?page=1"+"&method="+method);
                     ((GuideTwoFragment)((MainActivity)getActivity()).adapter.getItem(1)).endRefreshing();
                 }
             }.execute();
@@ -144,7 +192,7 @@ public class FgSecondPageFragment extends BaseFragment implements BGARefreshLayo
                 @Override
                 protected void onPostExecute(Void aVoid) {
                     page=page+1;
-                    String url="http://cs.hwwwwh.cn/admin/postsApi.php?page="+page;
+                    String url="http://cs.hwwwwh.cn/admin/postsApi.php?page="+page+"&method="+method;
                     new DownloadPostData(mApp,recyclerView,adapter,page).execute(url);
                     // 加载完毕后在 UI 线程结束下拉刷新
                     ((GuideTwoFragment)((MainActivity)getActivity()).adapter.getItem(1)).endLoadingMore();

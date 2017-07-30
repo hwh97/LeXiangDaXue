@@ -22,6 +22,155 @@
         android:layout_height="0.4dp"
         android:background="#cdcdcd" />
 
-    <include layout="@layout/post_reply"></include>
+    <FrameLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+
+        <include layout="@layout/post_reply"></include>
+
+        <LinearLayout
+            android:id="@+id/click_view"
+            android:orientation="vertical"
+            android:layout_gravity="bottom"
+            android:background="@color/white"
+            android:layout_width="match_parent"
+            android:layout_height="50dp">
+            <View
+                android:layout_alignParentTop="true"
+                android:id="@+id/pt_fgx2"
+                android:layout_width="match_parent"
+                android:layout_height="0.4dp"
+                android:background="#cdcdcd" />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/img_reoly"
+                    android:src="@drawable/comment"
+                    android:background="@drawable/conner_post"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="40dp" />
+                <com.ldoublem.thumbUplib.ThumbUpView
+                    android:id="@+id/zan"
+                    android:layout_width="25dp"
+                    android:layout_marginStart="5dp"
+                    app:cracksColor="@color/gray"
+                    app:edgeColor="@color/gray"
+                    android:layout_marginEnd="5dp"
+                    app:fillColor="#ea8010"
+                    app:unlikeType="1"
+                    android:layout_height="25dp"/>
+                <TextView
+                    android:id="@+id/post_goodcount"
+                    android:text="999+"
+                    android:layout_marginEnd="5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <ImageButton
+                    android:background="@null"
+                    android:src="@drawable/ic_send_black_24dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp" />
+            </LinearLayout>
+
+            <!--<EditText-->
+                <!--android:id="@+id/edit_reoly"-->
+                <!--android:editable="false"-->
+                <!--android:inputType="none"-->
+                <!--android:clickable="false"-->
+                <!--android:hint="写评论"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:background="@drawable/conner_post"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="40dp"-->
+                <!--android:textSize="14sp"-->
+                <!--android:layout_marginStart="10dp"-->
+                <!--android:layout_marginEnd="10dp"/>-->
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/reply_view"
+            android:visibility="gone"
+            android:layout_gravity="bottom"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <View
+                android:id="@+id/pt_fgx3"
+                android:layout_width="match_parent"
+                android:layout_height="0.4dp"
+                android:background="#cdcdcd" />
+
+            <LinearLayout
+                android:id="@+id/header_reply"
+                android:gravity="center_vertical"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="50dp">
+                <TextView
+                    android:id="@+id/cancel_reply"
+                    android:textColor="@color/gray_three"
+                    android:text="取消"
+                    android:textSize="14dp"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" />
+
+                <ImageView
+                    android:id="@+id/reply_emoji"
+                    android:src="@drawable/ic_insert_emoticon_black_24dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <Button
+                    android:id="@+id/reply_btn"
+                    android:textColor="@color/contents_text"
+                    android:background="@null"
+                    android:text="发表"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <android.support.v7.widget.AppCompatEditText
+                android:id="@+id/edit_reply"
+                android:hint="写点评论吧"
+                android:focusable="true"
+                android:gravity="left"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"
+                android:focusableInTouchMode="true"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/conner_post"
+                android:layout_width="match_parent"
+                android:layout_height="100dp" />
+
+            <com.ytying.emoji.SmileLayout
+                android:id="@+id/write_smile_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:visibility="visible"/>
+        </LinearLayout>
+
+
+    </FrameLayout>
 
 </LinearLayout>

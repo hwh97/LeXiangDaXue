@@ -415,8 +415,8 @@ public class EditActivity extends BaseActivity implements View.OnLayoutChangeLis
     }
 
     public void sendPost(final HashMap<String, String> hashMap, final List<String> list, final String content){
-
         pDialog.setMessage("提交数据中...");
+        showDialog();
         if (list!=null) {
             String bitmapJson;
             jsonArray = new JSONArray();
@@ -449,8 +449,11 @@ public class EditActivity extends BaseActivity implements View.OnLayoutChangeLis
                         setResult(RESULT_OK,intent);
                         finish();
                     } else {
-
-                        Log.d("Testlexiangdaxue","传输参数失败");
+                        String error_info=null;
+                        if(jObj.has("error_msg")) {
+                            error_info = jObj.getString("error_msg");
+                        }
+                        Log.d("Testlexiangdaxue","传输参数失败"+error_info);
                         hideDialog();
                         ShowToast("未知错误");
                     }

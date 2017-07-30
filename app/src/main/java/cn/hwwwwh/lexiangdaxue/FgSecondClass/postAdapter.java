@@ -9,10 +9,12 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Layout;
 import android.text.SpannableString;
 import android.text.SpannedString;
+import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -59,8 +61,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cn.hwwwwh.lexiangdaxue.LoginActivity;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.AppController;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SQLiteHandler;
+import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
 import cn.hwwwwh.lexiangdaxue.R;
 import cn.hwwwwh.lexiangdaxue.other.AppConfig;
 import cn.hwwwwh.lexiangdaxue.other.HttpUtils;
@@ -78,6 +82,7 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
     private ProgressDialog pDialog;
     private SQLiteHandler sqLiteHandler;
     public HashMap<String,String> hashMap;
+    private SessionManager session;
 
     public postAdapter(Context context){
         this.context=context;
@@ -86,6 +91,7 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
         pDialog.setCancelable(true);
         sqLiteHandler=new SQLiteHandler(context);
         hashMap=sqLiteHandler.getUserDetails();
+        session=new SessionManager(context);
         Log.d("testlexiangdaxue",hashMap.get("name")+"");
     }
 
@@ -150,17 +156,17 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public TextView post_admin;
-        public TextView post_content;
+        public AppCompatTextView post_content;
         public TextView post_createtime;
         public TextView comment_count;
         public TextView good_count;
         public TextView comment_user1;
-        public CBAlignTextView comment_content1;
-        public RelativeLayout area_comment;
+        public TextView comment_content1;
+        public LinearLayout area_comment;
         public TextView comment_user2;
-        public CBAlignTextView comment_content2;
+        public TextView comment_content2;
         public TextView comment_user3;
-        public CBAlignTextView comment_content3;
+        public TextView comment_content3;
         public TextView allComment;
         public ImageView fg2_rv_img1;
         public ImageView fg2_rv_img2;
@@ -172,7 +178,7 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
         public LinearLayout LL_zan;
         public ThumbUpView zan_pic;
         public RelativeLayout post_rv;
-        public NineGridImageView layout;
+        public NineGridPicLayout layout;
 
         private NineGridImageViewAdapter<PicBean> mAdapter = new NineGridImageViewAdapter<PicBean>() {
 
@@ -195,17 +201,17 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
 
         private void intiView(View itemView) {
             post_admin=(TextView) itemView.findViewById(R.id.post_admin);
-            post_content=(TextView) itemView.findViewById(R.id.post_content);
+            post_content=(AppCompatTextView) itemView.findViewById(R.id.post_content);
             post_createtime=(TextView) itemView.findViewById(R.id.post_createtime);
             comment_count=(TextView) itemView.findViewById(R.id.comment_count);
             good_count=(TextView) itemView.findViewById(R.id.good_count);
-            area_comment=(RelativeLayout)itemView.findViewById(R.id.area_comment);
+            area_comment=(LinearLayout)itemView.findViewById(R.id.area_comment);
             comment_user1=(TextView)itemView.findViewById(R.id.comment_user1);
-            comment_content1=(CBAlignTextView)itemView.findViewById(R.id.comment_content1);
+            comment_content1=(TextView)itemView.findViewById(R.id.comment_content1);
             comment_user2=(TextView)itemView.findViewById(R.id.comment_user2);
-            comment_content2=(CBAlignTextView)itemView.findViewById(R.id.comment_content2);
+            comment_content2=(TextView)itemView.findViewById(R.id.comment_content2);
             comment_user3=(TextView)itemView.findViewById(R.id.comment_user3);
-            comment_content3=(CBAlignTextView)itemView.findViewById(R.id.comment_content3);
+            comment_content3=(TextView)itemView.findViewById(R.id.comment_content3);
             allComment=(TextView)itemView.findViewById(R.id.allComment);
 //            fg2_rv_img1=(ImageView)itemView.findViewById(R.id.fg2_rv_img1);
 //            fg2_rv_img2=(ImageView)itemView.findViewById(R.id.fg2_rv_img2);
@@ -217,7 +223,7 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
             LL_zan=(LinearLayout)itemView.findViewById(R.id.LL_zan);
             zan_pic=(ThumbUpView)itemView.findViewById(R.id.zan_pic);
             post_rv=(RelativeLayout)itemView.findViewById(R.id.post_rv);
-            layout=(NineGridImageView)itemView.findViewById(R.id.layout_nine_grid);
+            layout=(NineGridPicLayout)itemView.findViewById(R.id.layout_nine_grid);
         }
 
         public void bindData(final postData data){
@@ -239,21 +245,23 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
                         urlList.add(picBean);
                     }
                 }
-                layout.setAdapter(mAdapter);
-                layout.setImagesData(urlList);
-                layout.setItemImageClickListener(new ItemImageClickListener() {
-                    @Override
-                    public void onItemImageClick(Context context, ImageView imageView, int index, List list) {
+                layout.setIsShowAll(false); //当传入的图片数超过9张时，是否全部显示
+                layout.setContext(context);
+                layout.setSpacing(10); //动态设置图片之间的间隔
+                layout.setSingleImageSize(160);
+                layout.setUrlList(urlList); //最后再设置图片url
 
-                    }
-                });
             }else{
                 layout.setVisibility(View.GONE);
             }
             post_rv.setOnClickListener(this);
             post_admin.setText(data.getPostAdmin());
             post_createtime.setText(data.getCreateTime());
-            dealContent(data.getPostContent());
+            SpannableString content2=StringUtil.stringToSpannableString(data.getPostContent(),context);
+            post_content.setText(content2);
+            post_content.setOnClickListener(this);
+            post_content.setVerticalScrollBarEnabled(false);
+            dealContent(data);
             comment_count.setText(data.getCommentCount());
             good_count.setText(data.getGoodCount());
             zan_pic.setUnLikeType(ThumbUpView.LikeType.broken);
@@ -263,19 +271,29 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
             zan_pic.setOnThumbUp(new ThumbUpView.OnThumbUp() {
                 @Override
                 public void like(boolean like) {
-                    if(like){
-                        data.setIsZan(true);
-                        int count=(Integer.parseInt(good_count.getText().toString())+1);
-                        good_count.setText(count+"");
-                        data.setGoodCount(count+"");
-                        sendPost(hashMap,data.getPostUuid(),"0");
-                    }else{
-                        data.setIsZan(false);
-                        int count=(Integer.parseInt(good_count.getText().toString())-1);
-                        good_count.setText(count+"");
-                        data.setGoodCount(count+"");
-                        sendPost(hashMap,data.getPostUuid(),"1");
-                    }
+                        if(like){
+                            if(session.isLoggedIn()) {
+                                data.setIsZan(true);
+                                int count=(Integer.parseInt(good_count.getText().toString())+1);
+                                good_count.setText(count+"");
+                                data.setGoodCount(count+"");
+                                sendPost(hashMap,data.getPostUuid(),"0");
+                            }else{
+                                zan_pic.stopAnim();
+                                logoutUser();
+                            }
+                        }else{
+                            if(session.isLoggedIn()) {
+                                data.setIsZan(false);
+                                int count=(Integer.parseInt(good_count.getText().toString())-1);
+                                good_count.setText(count+"");
+                                data.setGoodCount(count+"");
+                                sendPost(hashMap,data.getPostUuid(),"1");
+                            }else{
+                                zan_pic.stopAnim();
+                                logoutUser();
+                            }
+                        }
                 }
             });
             if (data.getIsZan()){
@@ -287,41 +305,54 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
             if(i>3){
                 allComment.setVisibility(View.VISIBLE);
                 allComment.setText("查看所有"+i+"条评论");
+            }else{
+                allComment.setVisibility(View.GONE);
             }
             if(data.getComment1()!=null){
                 area_comment.setVisibility(View.VISIBLE);
                 comment_user1.setVisibility(View.VISIBLE);
                 comment_content1.setVisibility(View.VISIBLE);
-                comment_user1.setText(data.getUser1()+"：");
+                comment_user1.setText(data.getUser1()+":");
                 //超过字符显示...
                 StringBuffer a=new StringBuffer(data.getComment1());
                 if(a.length()>80){
                     a=a.replace(80,a.length(),"...");
                 }
-                comment_content1.setText(a);
+                SpannableString content=StringUtil.stringToSpannableString(a.toString(),context);
+                comment_content1.setText(content);
                 //加载第二条评论
                 if(data.getComment2()!=null){
                     comment_user2.setVisibility(View.VISIBLE);
                     comment_content2.setVisibility(View.VISIBLE);
-                    comment_user2.setText(data.getUser2()+"：");
+                    comment_user2.setText(data.getUser2()+":");
                     //超过字符显示...
                     StringBuffer b=new StringBuffer(data.getComment2());
                     if(b.length()>80){
                         b=b.replace(80,b.length(),"...");
                     }
-                    comment_content2.setText(b);
+                    content=StringUtil.stringToSpannableString(b.toString(),context);
+                    comment_content2.setText(content);
                     //加载第三条评论
                     if(data.getComment3()!=null){
                         comment_user3.setVisibility(View.VISIBLE);
                         comment_content3.setVisibility(View.VISIBLE);
-                        comment_user3.setText(data.getUser3()+"：");
+                        comment_user3.setText(data.getUser3()+":");
                         //超过字符显示...
                         StringBuffer c=new StringBuffer(data.getComment3());
                         if(c.length()>80){
                             c=c.replace(80,c.length(),"...");
                         }
-                        comment_content3.setText(c);
+                        content=StringUtil.stringToSpannableString(c.toString(),context);
+                        comment_content3.setText(content, TextView.BufferType.SPANNABLE);
+                    }else{
+                        comment_user3.setVisibility(View.GONE);
+                        comment_content3.setVisibility(View.GONE);
                     }
+                }else{
+                    comment_user2.setVisibility(View.GONE);
+                    comment_content2.setVisibility(View.GONE);
+                    comment_user3.setVisibility(View.GONE);
+                    comment_content3.setVisibility(View.GONE);
                 }
             }else{
                 area_comment.setVisibility(View.GONE);
@@ -381,9 +412,7 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
 //
         }
 
-        public void dealContent(String content){
-            SpannableString content2=StringUtil.stringToSpannableString(content,context);
-            post_content.setText(content2);
+        public void dealContent(final postData data){
             /*通过textview获取Layout，然后根据Layout的一个方法getEllipsisCount(int)，
             来判断是否已经省略，但Layout大多时候获取到的都是null，为什么呢？原因是，Layout要等TextView绘制完了才能够拿到Layout的对象。以下两种方法*/
            /* ViewTreeObserver vto =post_reply.getViewTreeObserver();
@@ -393,22 +422,39 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
 
                 }
             });*/
-            post_content.post(new Runnable() {
-                @Override
-                public void run() {
-                    Layout l=post_content.getLayout();
-                    if (l != null) {
-                        int lines = l.getLineCount();
-                        if (lines > 0) {
-                            if (l.getEllipsisCount(lines - 1) > 0) {
-                                seeAll.setVisibility(View.VISIBLE);
-                            }else{
-                                seeAll.setVisibility(View.INVISIBLE);
+            if(data.getIsShowAll()==0) {
+                post_content.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Layout l = post_content.getLayout();
+                        Log.d("lexiangdx", l.getLineCount() + " ");
+                        Log.d("lexiangdx", l.getEllipsisCount(l.getLineCount() - 1) + " ");
+                        if (l != null) {
+                            int lines = l.getLineCount();
+                            if (lines > 0) {
+                                if (l.getEllipsisCount(lines - 1) > 0) {
+                                    seeAll.setVisibility(View.VISIBLE);
+                                    data.setIsShowAll(1);
+                                }else{
+                                    seeAll.setVisibility(View.GONE);
+                                    data.setIsShowAll(2);
+                                }
+//                                if (lines >= 4 ) {
+//                                    seeAll.setVisibility(View.VISIBLE);
+//                                    data.setIsShowAll(1);
+//                                } else {
+//                                    seeAll.setVisibility(View.GONE);
+//                                    data.setIsShowAll(2);
+//                                }
                             }
                         }
                     }
-                }
-            });
+                });
+            }else if(data.getIsShowAll()==1){
+                seeAll.setVisibility(View.VISIBLE);
+            }else {
+                seeAll.setVisibility(View.GONE);
+            }
 
         }
 
@@ -430,7 +476,7 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
         @Override
         public void onClick(View v) {
             switch (v.getId()){
-                case R.id.post_rv:
+                case R.id.post_rv: case R.id.post_content:
                     postData data=list.get(getLayoutPosition());
                     Intent intent =new Intent(context,PostActivity.class);
                     intent.putExtra("post_uuid",data.getPostUuid());
@@ -442,7 +488,7 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
 
         public void sendPost(final HashMap<String, String> hashMap, final String post_uuid, final String type){
             pDialog.setMessage("提交数据中...");
-//            showDialog();
+            showDialog();
 
             StringRequest stringRequest=new StringRequest(Request.Method.POST, AppConfig.urlHandleZan, new Response.Listener<String>() {
                 @Override
@@ -451,12 +497,16 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
                     try {
                         JSONObject obj=new JSONObject(response);
                         boolean error = obj.getBoolean("error");
-                        String info=obj.getString("error_msg");
                         if (!error){
                             Log.d("Testlexiangdaxue","成功点赞");
                         }else{
-                            Log.d("Testlexiangdaxue","传输参数失败"+info);
+                            String error_info=null;
+                            if(obj.has("error_msg")) {
+                                error_info = obj.getString("error_msg");
+                            }
+                            Log.d("Testlexiangdaxue","传输参数失败"+error_info);
                             hideDialog();
+                            Toast.makeText(context,"未知错误",Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -483,6 +533,15 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
             stringRequest.setRetryPolicy(new DefaultRetryPolicy(30*1000,1,1f));
             AppController.getInstance().addToRequestQueue(stringRequest,"postAdapter");
         }
+    }
+
+    private void logoutUser(){
+        session.setLogin(false);
+        sqLiteHandler.deleteUsers();
+        // Launching the login activity
+        Intent intent = new Intent(context, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
 }

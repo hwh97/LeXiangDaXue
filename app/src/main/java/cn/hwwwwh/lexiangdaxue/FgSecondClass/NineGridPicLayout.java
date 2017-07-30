@@ -4,6 +4,7 @@ package cn.hwwwwh.lexiangdaxue.FgSecondClass;
  * Created by 97481 on 2017/5/31/ 0031.
  */
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.AttributeSet;
 import android.view.View;
@@ -21,16 +22,27 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
+import cn.hwwwwh.lexiangdaxue.ImageLoader.SelectPhotoAdapter;
 import cn.hwwwwh.lexiangdaxue.R;
+import cn.hwwwwh.lexiangdaxue.ShowPhotoActivity;
 
 public class NineGridPicLayout  extends NineGridLayout {
 
     protected static final int MAX_W_H_RATIO = 3;
+    private Context context;
+    ArrayList<SelectPhotoAdapter.SelectPhotoEntity> selectedPhotoList = new ArrayList<>();//用于放置即将要发送的photo
 
     public NineGridPicLayout(Context context) {
         super(context);
+        this.context=context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 
     public NineGridPicLayout(Context context, AttributeSet attrs) {
@@ -95,9 +107,10 @@ public class NineGridPicLayout  extends NineGridLayout {
                 newW = parentWidth / 2;
                 newH = h * newW / w;
             }
-            setOneImageLayoutParams(imageView, newW, newH);
-            //Glide.with(mContext).load(url).diskCacheStrategy(DiskCacheStrategy.ALL).skipMemoryCache(true).placeholder(R.drawable.loadpic_default).dontAnimate().dontTransform().into(imageView);
-            Picasso.with(getContext()).load(url).tag(getContext()).resize(w,h).into(imageView);
+            //setOneImageLayoutParams(imageView, newW, newH);
+           // setSingleImageSize(50);
+            Glide.with(mContext).load(url).diskCacheStrategy(DiskCacheStrategy.ALL).skipMemoryCache(true).placeholder(R.drawable.loadpic_default).dontAnimate().into(imageView);
+           // Picasso.with(getContext()).load(url).tag(getContext()).resize(w,h).into(imageView);
         }
         return false;// true 代表按照九宫格默认大小显示(此时不要调用setOneImageLayoutParams)；false 代表按照自定义宽高显示。
     }
@@ -115,6 +128,15 @@ public class NineGridPicLayout  extends NineGridLayout {
 
     @Override
     protected void onClickImage(int i, String url, List<PicBean> urlList) {
-        Toast.makeText(mContext, "点击了图片" + url, Toast.LENGTH_SHORT).show();
+        selectedPhotoList.clear();
+        for(PicBean picBean:urlList){
+            SelectPhotoAdapter.SelectPhotoEntity p=new SelectPhotoAdapter.SelectPhotoEntity();
+            p.url=picBean.getPic_url();
+            selectedPhotoList.add(p);
+        }
+        Intent intent=new Intent(context, ShowPhotoActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra("selectPhotos", (Serializable) selectedPhotoList);//把获取到图片交给别的Activity
+        context.startActivity(intent);
     }
 }
