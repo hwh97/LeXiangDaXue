@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 import cn.hwwwwh.lexiangdaxue.ImageLoader.SelectPhotoAdapter;
+import cn.hwwwwh.lexiangdaxue.R;
+import cn.hwwwwh.lexiangdaxue.ViewPagerAdapter;
 import cn.hwwwwh.lexiangdaxue.other.BaseActivity;
 import cn.hwwwwh.lexiangdaxue.other.PinchImageView;
 

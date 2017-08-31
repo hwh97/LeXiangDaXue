@@ -2,18 +2,27 @@ package cn.hwwwwh.lexiangdaxue.other;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 
+import java.util.HashMap;
+
+import cn.hwwwwh.lexiangdaxue.LoginActivity;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.AppController;
+import cn.hwwwwh.lexiangdaxue.LoginRegister.SQLiteHandler;
+import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
+import cn.hwwwwh.lexiangdaxue.selectSchoolClass.activity.selectActivity;
 
 /**
  * Created by 97481 on 2017/2/2.
@@ -28,12 +37,17 @@ import cn.hwwwwh.lexiangdaxue.LoginRegister.AppController;
     protected boolean isInit = false;
     protected boolean isLoad = false;
     protected final String TAG = "LazyLoadFragment";
+    private SessionManager session;
+    private SQLiteHandler db;
+
 
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         mApp=AppController.getInstance();
+        session=new SessionManager(mApp);
+        db=new SQLiteHandler(mApp);
     }
 
     @Override
@@ -62,6 +76,8 @@ import cn.hwwwwh.lexiangdaxue.LoginRegister.AppController;
         }
         return mContentView;
     }
+
+
 
     /**
      * 视图是否已经对用户可见，系统的方法
@@ -109,6 +125,53 @@ import cn.hwwwwh.lexiangdaxue.LoginRegister.AppController;
 
     protected void ShowToast(String text){
         ToastUtil.show(text);
+    }
+
+
+    public void logout() {
+        session.setLogin(false);
+        db.deleteUsers();
+        db.deleteUniversity();
+    }
+
+    protected void logoutUser() {
+        session.setLogin(false);
+        db.deleteUsers();
+        // Launching the login activity
+        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        startActivity(intent);
+    }
+
+    protected boolean isLoggedIn(){
+        if(session.isLoggedIn())
+            return  true;
+        else
+            return false;
+    }
+
+    protected HashMap<String,String> getUserDetails(){
+        HashMap<String,String> userMap=db.getUserDetails();
+        return userMap;
+
+    }
+
+    protected void logoutUniversity(){
+        db.deleteUniversity();
+        // Launching the login activity
+        Intent intent = new Intent(getContext(), selectActivity.class);
+        startActivity(intent);
+    }
+
+    protected boolean isSelectUni(){
+        if(db.getUserDetails().isEmpty())
+            return false;
+        else
+            return true;
+    }
+
+    protected HashMap<String,String> getUniDetails(){
+        HashMap<String,String> uniMap=db.getUniDetails();
+        return uniMap;
     }
 
     /**

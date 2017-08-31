@@ -232,4 +232,6 @@ public class PageFragment extends BaseFragment implements BGARefreshLayout.BGARe
             Toast.makeText(getActivity(), "没有更多数据了", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 }

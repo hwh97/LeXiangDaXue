@@ -1,7 +1,8 @@
 package cn.hwwwwh.lexiangdaxue.other;
 
-import android.app.Activity;
 import android.util.Log;
+
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,12 +11,18 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.hwwwwh.lexiangdaxue.FgSecondClass.postData;
-import cn.hwwwwh.lexiangdaxue.HomeData;
+import cn.hwwwwh.lexiangdaxue.FgFourthClass.bean.AddressBean;
+import cn.hwwwwh.lexiangdaxue.FgFourthClass.bean.userBean;
+import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.DetailPostBean;
+import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.ReplyBean;
+import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.postData;
+import cn.hwwwwh.lexiangdaxue.FgFirstClass.bean.HomeData;
 import cn.hwwwwh.lexiangdaxue.ProductClass.bean.Category;
 import cn.hwwwwh.lexiangdaxue.ProductClass.bean.Product;
 import cn.hwwwwh.lexiangdaxue.SelltementClass.bean.Time;
 import cn.hwwwwh.lexiangdaxue.ShoppingClass.bean.QuanGoods;
+import cn.hwwwwh.lexiangdaxue.FgFirstClass.bean.picData;
+import cn.hwwwwh.lexiangdaxue.selectSchoolClass.bean.School;
 
 /**
  * Created by 97481 on 2016/11/14.
@@ -155,13 +162,40 @@ public class ParserJson {
         List<HomeData> list=new ArrayList<HomeData>();
         try {
             JSONObject obj=new JSONObject(jsonString);
-            JSONArray arr=obj.getJSONArray("HomeData");
-            obj=arr.getJSONObject(0);
+            //领卷购数据
+            JSONArray arr=obj.getJSONArray("QuanData");
+            //活动图数据
+            JSONArray arr2=obj.getJSONArray("PicData");
+
+            JSONObject obj2=arr.getJSONObject(0);
             HomeData homeData=new HomeData();
-            homeData.setPic(obj.getString("Pic"));
-            homeData.setD_title(obj.getString("D_title"));
-            String s=obj.getString("Price");
-            homeData.setPrice(s);
+            homeData.setPic(obj2.getString("Pic"));
+            homeData.setD_title(obj2.getString("D_title"));
+            homeData.setPrice(obj2.getString("Price"));
+            List<picData> dataList=new ArrayList<>();
+            for(int i=0;i<arr2.length();i++){
+                JSONObject obj3=arr2.getJSONObject(i);
+                picData picDatas=new picData();
+                picDatas.setApppic_id(obj3.getInt("apppic_id"));
+                picDatas.setApppic_level(obj3.getInt("apppic_level"));
+                picDatas.setApppic_linkurl(obj3.getString("apppic_linkurl"));
+                picDatas.setApppic_type(obj3.getInt("apppic_type"));
+                picDatas.setApppic_url((obj3.getString("apppic_url")));
+                dataList.add(picDatas);
+            }
+            homeData.setPicData(dataList);
+
+            if(obj.has("UserUniversity")){
+                JSONArray arr3=obj.getJSONArray("UserUniversity");
+                JSONObject obj4=arr3.getJSONObject(0);
+                School school=new School();
+                school.setProvince(obj4.getString("uu_province"));
+                school.setCity(obj4.getString("uu_city"));
+                school.setName(obj4.getString("uu_name"));
+                school.setUniversity_id(obj4.getInt("university_id"));
+                school.setUid(obj4.getString("user_uuid"));
+                homeData.setSchoolData(school);
+            }
             list.add(homeData);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -231,5 +265,116 @@ public class ParserJson {
         return list;
     }
 
+    //单个帖子数据
 
+    public static List<DetailPostBean> getSinglePostData(String jsonString){
+        List<DetailPostBean> list = new ArrayList<>();
+        Log.d("lexiangdaxueTag", jsonString);
+        try {
+            JSONArray arr = new JSONArray(jsonString);
+            JSONObject obj = arr.getJSONObject(0);
+            DetailPostBean detailPostBean = new DetailPostBean();
+            detailPostBean.setId(obj.getString("Post_id"));
+            detailPostBean.setPostAdmin(obj.getString("Post_admin"));
+            detailPostBean.setPostContent(obj.getString("Post_content"));
+            detailPostBean.setCreateTime(obj.getString("Post_createtime"));
+            detailPostBean.setGoodCount(obj.getString("Post_goodcount"));
+            detailPostBean.setCommentCount(obj.getString("Post_commentcount"));
+            detailPostBean.setImgNum(obj.getString("Post_imgnum"));
+            detailPostBean.setPostUuid(obj.getString("Post_uuid"));
+            int Post_picNum = Integer.parseInt(obj.getString("Post_imgnum"));
+            if (Post_picNum > 0) {
+                if (Post_picNum == 1) {
+                    detailPostBean.setPictureUrl1(obj.getString("picture1"));
+                    detailPostBean.setPicture1Height(obj.getString("picture1Height"));
+                    detailPostBean.setPicture1Width(obj.getString("picture1Width"));
+                } else if (Post_picNum >= 2) {
+                    List<String> list2 = new ArrayList<>();
+                    for (int j = 0; j < Post_picNum; j++) {
+                        list2.add(obj.getString("picture" + (j + 1)));
+                    }
+                    detailPostBean.setPicsData(list2);
+                }
+            }
+            if (obj.has("Post_isZan")) {
+                detailPostBean.setZan(true);
+            }
+            list.add(detailPostBean);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    //回复数据
+    public static ArrayList<ReplyBean> getReplyData(String jsonString){
+        ArrayList<ReplyBean> list = new ArrayList<>();
+        try {
+            JSONArray arr = new JSONArray(jsonString);
+            for(int i=0;i<arr.length();i++) {
+                JSONObject obj = arr.getJSONObject(i);
+                ReplyBean replyBean = new ReplyBean();
+                replyBean.setReply_id(obj.getString("Reply_id"));
+                replyBean.setReply_admin(obj.getString("Reply_admin"));
+                replyBean.setReply_uuid(obj.getString("Reply_uuid"));
+                replyBean.setReply_content(obj.getString("Reply_content"));
+                replyBean.setReply_createtime(obj.getString("Reply_createtime"));
+                replyBean.setReply_email(obj.getString("Reply_email"));
+                replyBean.setReply_postuuid(obj.getString("Reply_postuuid"));
+                replyBean.setReply_commentcount(obj.getInt("Reply_commentcount"));
+                replyBean.setReply_goodcount(obj.getInt("Reply_goodcount"));
+                if(obj.has("Reply_isposts")){
+                    if(obj.getInt("Reply_isposts")==0){
+                        replyBean.setReply_isReplys(true);
+                    }
+                }
+                if(obj.has("ispop")){
+                    replyBean.setIspop(true);
+                }
+                if(replyBean.Reply_isReplys && obj.has("Reply_replyadmin") && obj.has("Reply_replyemail") ){
+                    replyBean.setReply_replyadmin(obj.getString("Reply_replyadmin"));
+                    replyBean.setRepky_replyemail(obj.getString("Reply_replyemail"));
+                }
+                if(obj.has("Reply_isZan")){
+                    replyBean.setZan(true);
+                }
+                list.add(replyBean);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+
+    //用户信息
+    public static ArrayList<userBean> getUserInfo(String jsonString){
+        ArrayList<userBean> list=new ArrayList<>();
+        JSONObject jobj= null;
+        try {
+            userBean userBean=new userBean();
+            jobj = new JSONObject(jsonString);
+            //user 实例
+            JSONArray userdata = jobj.getJSONArray("userdata");
+            list.add(new Gson().fromJson(userdata.get(0).toString(),userBean.class));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public static ArrayList<AddressBean> getUserAddress(String jsonString){
+        ArrayList<AddressBean> list=new ArrayList<>();
+        JSONObject jobj= null;
+        try {
+            userBean userBean=new userBean();
+            jobj = new JSONObject(jsonString);
+            //user 实例
+            JSONArray address = jobj.getJSONArray("address");
+            list.add(new Gson().fromJson(address.get(0).toString(),AddressBean.class));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

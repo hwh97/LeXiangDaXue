@@ -26,6 +26,7 @@ import cn.hwwwwh.lexiangdaxue.LoginRegister.AppController;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SQLiteHandler;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
 import cn.hwwwwh.lexiangdaxue.other.AppConfig;
+import cn.hwwwwh.lexiangdaxue.other.RxBus;
 
 /**
  * Created by 97481 on 2016/10/13.
@@ -118,9 +119,20 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                         String created_at = user
                                 .getString("created_at");
                         db.addUser(name, email, uid, created_at);
-                        Intent intent = new Intent(LoginActivity.this,
-                                MainActivity.class);
-                        startActivity(intent);
+                        if (jobj.has("university")) {
+                            //university 实例
+                            JSONObject university = jobj.getJSONObject("university");
+                            String user_uuid = university.getString("user_uuid");
+                            String uu_province = university.getString("uu_province");
+                            String uu_city = university.getString("uu_city");
+                            String uu_name = university.getString("uu_name");
+                            String university_id = university.getString("university_id");
+                            db.addUniversity(user_uuid, uu_province, uu_city, uu_name, university_id);
+                            RxBus.getInstance().post(uu_name);
+                        }
+//                        Intent intent = new Intent(LoginActivity.this,
+//                                MainActivity.class);
+//                        startActivity(intent);
                         finish();
                     }else {
                         // Error in login. Get the error message

@@ -4,7 +4,7 @@ package cn.hwwwwh.lexiangdaxue.other;
  * Created by 97481 on 2016/10/13.
  */
 public class AppConfig {
-    public static String URL_LOGIN ="http://tp.hwwwwh.cn/login";
+    public static String URL_LOGIN ="http://cs.hwwwwh.cn/login.php";
 
     public static String URL_REGISTER ="http://tp.hwwwwh.cn/register";
 
@@ -32,5 +32,11 @@ public class AppConfig {
 
     public static String urlHandleReply="http://cs.hwwwwh.cn/admin/HandleReply.php";
 
+    public static String urlAddUU="http://cs.hwwwwh.cn/admin/AddUU.php";
 
+    public static String urlUpdateUser="http://cs.hwwwwh.cn/admin/updateUser.php";
+
+    public static String urlHomeApi ="http://cs.hwwwwh.cn/admin/home_api.php?method=1";
+
+    public static String urlHandleAddress="http://cs.hwwwwh.cn/admin/HandleAddress.php";
 }

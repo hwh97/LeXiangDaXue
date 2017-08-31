@@ -46,6 +46,11 @@ public class ShoppingActivity extends BaseActivity implements
     private ImageView imageView;
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        // super.onSaveInstanceState(outState);
+    }
+
+    @Override
     protected void initView(Bundle savedInstanceState) {
         setContentView(R.layout.activity_shopping);
         toolbar=(Toolbar)findViewById(R.id.toolbar_shopping);

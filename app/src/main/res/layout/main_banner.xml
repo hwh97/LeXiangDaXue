@@ -34,7 +34,7 @@
             android:layout_centerHorizontal="true"
             android:drawablePadding="5dp"
             android:drawableStart="@drawable/ic_room_24px"
-            android:text="添加送货地址"
+            android:text="绑定所在学校"
             android:textSize="15sp"
             android:textColor="@color/black"
             />

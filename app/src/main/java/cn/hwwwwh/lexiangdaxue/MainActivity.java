@@ -38,6 +38,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+       // super.onSaveInstanceState(outState);
+    }
+
     private void initView() {
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         viewPager.setOffscreenPageLimit(4);

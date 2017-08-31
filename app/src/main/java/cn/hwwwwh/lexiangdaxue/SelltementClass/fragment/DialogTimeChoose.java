@@ -25,7 +25,7 @@ public class DialogTimeChoose extends BottomSheetDialogFragment implements View.
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new MyBottomSheetDialog(getContext(),getTheme());
+        return new MyBottomSheetDialog(getContext());
     }
 
     public static DialogTimeChoose newInstance() {

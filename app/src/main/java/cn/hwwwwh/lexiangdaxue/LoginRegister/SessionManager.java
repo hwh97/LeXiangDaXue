@@ -20,6 +20,7 @@ public class SessionManager {
     //shareD preferences file name
     private static final String PREF_NAME="lexiangdaxue_Login";
     private static final String KEY_IS_LOGGEDIN="isLoggedIn";
+
     public SessionManager(Context context){
         this._context=context;
         pref=_context.getSharedPreferences(PREF_NAME,PRIVATE_MODE);

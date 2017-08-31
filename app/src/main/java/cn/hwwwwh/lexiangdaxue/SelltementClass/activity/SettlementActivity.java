@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -19,17 +20,32 @@ import android.widget.Toast;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
 
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
 import java.util.List;
 
+import cn.hwwwwh.lexiangdaxue.FgFourthClass.Activity.AddressActivity;
+import cn.hwwwwh.lexiangdaxue.FgFourthClass.bean.AddressBean;
+import cn.hwwwwh.lexiangdaxue.FgFourthClass.presenter.DownloadUserAddressPresenter;
+import cn.hwwwwh.lexiangdaxue.FgFourthClass.presenter.IDownloadUserAddressPresenter;
+import cn.hwwwwh.lexiangdaxue.FgFourthClass.view.IAddressView;
+import cn.hwwwwh.lexiangdaxue.LoginRegister.SQLiteHandler;
+import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
 import cn.hwwwwh.lexiangdaxue.ProductClass.bean.Product;
 
 import cn.hwwwwh.lexiangdaxue.R;
 import cn.hwwwwh.lexiangdaxue.SelltementClass.fragment.DialogTimeChoose;
 import cn.hwwwwh.lexiangdaxue.SelltementClass.adapter.GoodsAdapter;
 import cn.hwwwwh.lexiangdaxue.SelltementClass.fragment.SettlementFragment;
+import cn.hwwwwh.lexiangdaxue.SelltementClass.other.MyBottomSheetDialog;
+import cn.hwwwwh.lexiangdaxue.other.BaseActivity;
+import cn.hwwwwh.lexiangdaxue.other.RxBus;
 import me.majiajie.swipeback.SwipeBackActivity;
+import rx.Subscription;
+import rx.functions.Action1;
 
-public class SettlementActivity extends SwipeBackActivity  implements View.OnClickListener {
+public class SettlementActivity extends BaseActivity implements View.OnClickListener,IAddressView {
 
     private RecyclerView recyclerView;
     private TextView allValue;
@@ -45,13 +61,61 @@ public class SettlementActivity extends SwipeBackActivity  implements View.OnCli
     private TextView column_settlement;
     private View note_view;
     private TextView note;
+    private DownloadUserAddressPresenter downloadUserAddressPresenter;
+    private SessionManager session;
+    private SQLiteHandler db;
+    private RelativeLayout address_view;
+    private LinearLayout address_view2;
+    private TextView address_name;
+    private TextView address_phone;
+    private TextView address_da;
+    public AddressBean addressBean;
+    private Subscription rxSbscription;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void initView(Bundle savedInstanceState) {
         setContentView(R.layout.activity_settlement);
-        initView();
-        List<Product> list=(List<Product>)this.getIntent().getSerializableExtra("product");
+        toolbar = getViewById(R.id.toolbar_settlement);
+        recyclerView = getViewById(R.id.select_RV);
+        allValue =getViewById(R.id.allValue);
+        //bottomSheetLayout=(BottomSheetLayout)findViewById(R.id.timechoose);
+        getTime=getViewById(R.id.getTime_View);
+        pay_way=getViewById(R.id.pay_way);
+        preferential_view=getViewById(R.id.preferential_view);
+        selectTime=getViewById(R.id.selectTime);
+        pay_method=getViewById(R.id.pay_method);
+        column_settlement=getViewById(R.id.column_settlement);
+        note_view=getViewById(R.id.note_view);
+        note=getViewById(R.id.note);
+        //解决scrollView不能自动定位在顶部
+        final ScrollView scrollView=getViewById(R.id.settlement_Sl);
+        scrollView.smoothScrollTo(0,20);
+        session=new SessionManager(this);
+        // SqLite database handler
+        db = new SQLiteHandler(this);
+        address_view=getViewById(R.id.address_view);
+        address_view2=getViewById(R.id.address_view2);
+        address_name=getViewById(R.id.address_name);
+        address_da=getViewById(R.id.address_da);
+        address_phone=getViewById(R.id.address_phone);
+    }
+
+    @Override
+    protected void setListener() {
+        getTime.setOnClickListener(this);
+        note_view.setOnClickListener(this);
+        preferential_view.setOnClickListener(this);
+        pay_way.setOnClickListener(this);
+        address_view2.setOnClickListener(this);
+        address_view.setOnClickListener(this);
+    }
+
+    @Override
+    protected void processLogic(Bundle savedInstanceState) {
+        RefreshUi();
+        refreshPayWay();
+        refreshNote();
+        final List<Product> list=(List<Product>)this.getIntent().getSerializableExtra("product");
         String AllValue=this.getIntent().getStringExtra("AllValue");
         toolbar.setTitle("结算");
         toolbar.setTitleTextAppearance(this, R.style.TitleText);
@@ -70,51 +134,26 @@ public class SettlementActivity extends SwipeBackActivity  implements View.OnCli
         allValue.setText("￥" + AllValue);
         column=this.getIntent().getStringExtra("column");
         column_settlement.setText(column + "店");
+        downloadUserAddressPresenter=new DownloadUserAddressPresenter(this);
+        downloadUserAddressPresenter.download("http://cs.hwwwwh.cn/admin/UserAddressApi.php?uid="+db.getUserDetails().get("uid"));
+        rxSbscription = RxBus.getInstance().toObserverable(AddressBean.class)
+                .subscribe(new Action1<AddressBean>() {
+                    @Override
+                    public void call(AddressBean addressBean) {
+                        initAddress(addressBean);
+                    }
+                });
     }
 
-    public void initView() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar_settlement);
-        recyclerView = (RecyclerView) findViewById(R.id.select_RV);
-        allValue = (TextView) findViewById(R.id.allValue);
-        //bottomSheetLayout=(BottomSheetLayout)findViewById(R.id.timechoose);
-        getTime=(RelativeLayout)findViewById(R.id.getTime_View);
-        getTime.setOnClickListener(this);
-        pay_way=(RelativeLayout)findViewById(R.id.pay_way);
-        pay_way.setOnClickListener(this);
-        preferential_view=(RelativeLayout)findViewById(R.id.preferential_view);
-        preferential_view.setOnClickListener(this);
-        selectTime=(TextView)findViewById(R.id.selectTime);
-        pay_method=(TextView)findViewById(R.id.pay_method);
-        column_settlement=(TextView)findViewById(R.id.column_settlement);
-        note_view=findViewById(R.id.note_view);
-        note_view.setOnClickListener(this);
-        note=(TextView)findViewById(R.id.note);
-        //解决scrollView不能自动定位在顶部
-        final ScrollView scrollView=(ScrollView)findViewById(R.id.settlement_Sl);
-        scrollView.smoothScrollTo(0,20);
-        RefreshUi();
-        refreshPayWay();
-        refreshNote();
+    public void initAddress(AddressBean addressBean){
+        this.addressBean=addressBean;
+        address_view2.setVisibility(View.VISIBLE);
+        address_view.setVisibility(View.GONE);
+        address_name.setText(addressBean.getUa_name());
+        address_da.setText(db.getUniDetails().get("uu_city")+db.getUniDetails().get("uu_name")+addressBean.getUa_detailAddress());
+        address_phone.setText(addressBean.getUa_phoneNum());
     }
 
-
-    private void showBottomSheet(){
-        bottomSheet= createBottomSheetView();
-        if(bottomSheetLayout.isSheetShowing()){
-            bottomSheetLayout.dismissSheet();
-        }else{
-            bottomSheetLayout.showWithSheetView(bottomSheet);
-        }
-    }
-
-    public View createBottomSheetView(){
-        View view= LayoutInflater.from(this).inflate(R.layout.settlement_buttonsheet,(ViewGroup)getWindow().getDecorView(),false);
-        SettlementFragment settlementFragment=new SettlementFragment();
-        FragmentTransaction fragmentTransaction=getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.settlement_container,settlementFragment);
-        fragmentTransaction.commit();
-        return view;
-    }
     @Override
     public void onClick(View v) {
         switch(v.getId()){
@@ -131,6 +170,10 @@ public class SettlementActivity extends SwipeBackActivity  implements View.OnCli
             case R.id.note_view:
                 Intent intent=new Intent(SettlementActivity.this,NoteActivity.class);
                 startActivityForResult(intent,1);
+                break;
+            case R.id.address_view:case R.id.address_view2:
+                Intent intent2=new Intent(SettlementActivity.this,AddressActivity.class);
+                startActivity(intent2);
                 break;
         }
     }
@@ -149,7 +192,7 @@ public class SettlementActivity extends SwipeBackActivity  implements View.OnCli
     }
 
     private void openBottomSheet(){
-        final BottomSheetDialog dialog=new BottomSheetDialog(this);
+        final MyBottomSheetDialog dialog=new MyBottomSheetDialog(this);
         View view=getLayoutInflater().inflate(R.layout.settlement_payway, null);
         dialog.setContentView(view);
         dialog.show();
@@ -207,6 +250,19 @@ public class SettlementActivity extends SwipeBackActivity  implements View.OnCli
             note.setText(noteContent);
         else
             note.setText("输入备注");
+    }
+
+
+    @Override
+    public void setAddressView(ArrayList<AddressBean> list) {
+        this.addressBean=list.get(0);
+        initAddress(addressBean);
+    }
+
+    @Override
+    public void setFail() {
+        address_view2.setVisibility(View.GONE);
+        address_view.setVisibility(View.VISIBLE);
     }
 
 }

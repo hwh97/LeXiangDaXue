@@ -5,7 +5,7 @@ android {
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "cn.hwwwwh.lexiangdaxue"
-        minSdkVersion 17
+        minSdkVersion 19
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -24,7 +24,8 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:design:24.1.0'
+    compile 'com.android.support:appcompat-v7:24.1.0'
     testCompile 'junit:junit:4.12'
     compile files('libs/gradle-wrapper.jar')
     compile 'com.ashokvarma.android:bottom-navigation-bar:1.3.0'
@@ -33,8 +34,7 @@ dependencies {
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.github.bumptech.glide:glide:3.6.1'
     compile 'com.pnikosis:materialish-progress:1.7'
-    compile 'com.flipboard:bottomsheet-core:1.5.2'
-    compile 'com.android.support:design:23.4.0'
+    compile 'com.flipboard:bottomsheet-core:1.5.3'
     compile 'com.xhb.jxnk25:MailLineView:1.1.0'
     compile 'cn.bingoogolapple:bga-refreshlayout:1.1.7@aar'
     compile 'com.squareup.picasso:picasso:2.5.2'
@@ -53,4 +53,11 @@ dependencies {
         exclude group: 'com.android.support'
     })
     compile project(':emojipro')
+    compile 'com.google.code.gson:gson:2.8.0'
+    //RxJava and RxAndroid
+    compile 'io.reactivex:rxandroid:1.1.0'
+    compile 'io.reactivex:rxjava:1.1.0'
+    compile 'com.android.support:cardview-v7:24.1.0'  //cardview
+    //高斯模糊
+    compile 'jp.wasabeef:glide-transformations:2.0.1'
 }

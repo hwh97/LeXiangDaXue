@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <View
@@ -11,7 +12,6 @@
         android:id="@+id/address_view"
         android:layout_marginTop="10dp"
         android:background="@color/white"
-        android:layout_below="@+id/fgx3"
         android:paddingTop="12dp"
         android:paddingBottom="12dp"
         android:layout_width="match_parent"
@@ -42,14 +42,69 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/address_view2"
+        android:visibility="gone"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:src="@drawable/ic_location_on_24dp"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/address_name"
+                android:text="黄小明"
+                android:textColor="@color/gray"
+                android:layout_marginLeft="10dp"
+                android:textSize="14sp"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/address_phone"
+                android:text="13888888888"
+                android:paddingRight="20dp"
+                android:src="@drawable/ic_chevron_right_24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/address_da"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:text="佛山市顺德职业技术学院27栋606"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+    </LinearLayout>
+
     <com.xhb.jxnk25.maillineview.MailLineView
         android:id="@+id/fgx4"
-        android:layout_below="@id/address_view"
         android:layout_width="wrap_content"
         android:layout_height="2.5dp" />
+
     <RelativeLayout
         android:id="@+id/getTime_View"
-        android:layout_below="@id/fgx4"
         android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="50dp">
@@ -77,15 +132,16 @@
             android:textSize="14sp"
             android:text="尽快送达"/>
     </RelativeLayout>
+
     <View
         android:id="@+id/fgx5"
         android:layout_below="@id/getTime_View"
         android:layout_width="match_parent"
         android:layout_height="0.4dp"
         android:background="#cdcdcd" />
+
     <RelativeLayout
         android:id="@+id/pay_way"
-        android:layout_below="@id/fgx5"
         android:layout_width="match_parent"
         android:background="@color/white"
         android:layout_height="50dp">
@@ -117,7 +173,6 @@
     <RelativeLayout
         android:id="@+id/name_view"
         android:layout_marginTop="10dp"
-        android:layout_below="@+id/pay_way"
         android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="40dp">
@@ -138,14 +193,12 @@
         android:background="#cdcdcd" />
     <android.support.v7.widget.RecyclerView
         android:id="@+id/select_RV"
-        android:layout_below="@id/fgx8"
         android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
     <RelativeLayout
         android:id="@+id/psf_view"
-        android:layout_below="@+id/select_RV"
         android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="50dp">
@@ -172,7 +225,6 @@
         android:id="@+id/preferential_view"
         android:layout_marginTop="10dp"
         android:background="@color/white"
-        android:layout_below="@+id/psf_view"
         android:layout_width="match_parent"
         android:layout_height="50dp">
         <TextView
@@ -209,7 +261,6 @@
     <RelativeLayout
         android:id="@+id/note_view"
         android:background="@color/white"
-        android:layout_below="@+id/fgx6"
         android:layout_width="match_parent"
         android:layout_height="50dp">
         <TextView
@@ -245,4 +296,4 @@
         android:background="@color/bg_color"
         android:layout_width="match_parent"
         android:layout_height="20dp"/>
-</RelativeLayout>
+</LinearLayout>

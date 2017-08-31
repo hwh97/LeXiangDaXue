@@ -30,6 +30,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.hwwwwh.lexiangdaxue.LoginActivity;
+import cn.hwwwwh.lexiangdaxue.LoginRegister.SQLiteHandler;
+import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
 import cn.hwwwwh.lexiangdaxue.ProductClass.adpter.CategoryAdapter;
 import cn.hwwwwh.lexiangdaxue.ProductClass.adpter.GwcAdapter;
 import cn.hwwwwh.lexiangdaxue.ProductClass.bean.Category;
@@ -67,6 +70,8 @@ public class ProductActivity extends BaseActivity implements View.OnClickListene
     private TextView product_title;
     private Toolbar toolbar;
     private DownloadActivityPresenter downloadActivityPresenter;
+    private SessionManager session;
+    private SQLiteHandler db;
 
     @Override
     protected void initView(Bundle savedInstanceState) {
@@ -81,8 +86,18 @@ public class ProductActivity extends BaseActivity implements View.OnClickListene
         settlement=getViewById(R.id.settlement);
         product_title=getViewById(R.id.product_title);
         toolbar=getViewById(R.id.toolbar_product);
+        session=new SessionManager(this);
+        // SqLite database handler
+        db = new SQLiteHandler(this);
     }
 
+    private void logoutUser() {
+        session.setLogin(false);
+        db.deleteUsers();
+        // Launching the login activity
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+    }
     @Override
     protected void setListener() {
         settlement.setOnClickListener(this);
@@ -164,13 +179,18 @@ public class ProductActivity extends BaseActivity implements View.OnClickListene
                 builder.show();
                 break;
             case R.id.settlement:
-                Intent intent=new Intent(ProductActivity.this,SettlementActivity.class);
-                Bundle bundle=new Bundle();
-                bundle.putSerializable("product", (Serializable) getSelectList());
-                bundle.putString("AllValue",getSelectValue()+"");
-                bundle.putString("column",column);
-                intent.putExtras(bundle);
-                startActivity(intent);
+                if(session.isLoggedIn()){
+                    Intent intent=new Intent(ProductActivity.this,SettlementActivity.class);
+                    Bundle bundle=new Bundle();
+                    bundle.putSerializable("product", (Serializable) getSelectList());
+                    bundle.putString("AllValue",getSelectValue()+"");
+                    bundle.putString("column",column);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                }else{
+                    logoutUser();
+                }
+
                 break;
         }
     }

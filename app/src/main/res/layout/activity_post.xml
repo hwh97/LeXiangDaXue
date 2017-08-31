@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cn.hwwwwh.lexiangdaxue.FgSecondClass.PostActivity">
+    tools:context="cn.hwwwwh.lexiangdaxue.FgSecondClass.activity.PostActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar_post"
@@ -57,7 +57,7 @@
                     android:layout_weight="1"
                     android:layout_height="40dp" />
                 <com.ldoublem.thumbUplib.ThumbUpView
-                    android:id="@+id/zan"
+                    android:id="@+id/zan_btn"
                     android:layout_width="25dp"
                     android:layout_marginStart="5dp"
                     app:cracksColor="@color/gray"

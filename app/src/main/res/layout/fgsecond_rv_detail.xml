@@ -53,7 +53,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <cn.hwwwwh.lexiangdaxue.FgSecondClass.NineGridPicLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    <cn.hwwwwh.lexiangdaxue.FgSecondClass.other.NineGridPicLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_marginLeft="5dp"
         android:paddingEnd="10dp"
         android:layout_toEndOf="@+id/headPic"
@@ -201,7 +201,7 @@
         android:orientation="vertical">
         <LinearLayout
             android:gravity="bottom"
-            android:id="@+id/commment1"
+            android:id="@+id/comment1"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -224,7 +224,7 @@
         <LinearLayout
             android:gravity="bottom"
             android:layout_marginTop="4dp"
-            android:id="@+id/commment2"
+            android:id="@+id/comment2"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -247,7 +247,7 @@
         <LinearLayout
             android:gravity="bottom"
             android:layout_marginTop="4dp"
-            android:id="@+id/commment3"
+            android:id="@+id/comment3"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -271,7 +271,7 @@
         <TextView
             android:id="@+id/allComment"
             android:visibility="gone"
-            android:layout_below="@id/commment3"
+            android:layout_below="@id/comment3"
             android:textColor="@color/darkgray"
             android:paddingTop="4dp"
             android:textSize="12sp"

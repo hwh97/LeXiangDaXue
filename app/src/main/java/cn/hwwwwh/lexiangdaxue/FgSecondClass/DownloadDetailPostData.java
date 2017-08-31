@@ -1,19 +1,14 @@
 package cn.hwwwwh.lexiangdaxue.FgSecondClass;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.media.Image;
 import android.os.AsyncTask;
-import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,9 +19,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.bumptech.glide.Glide;
 import com.ldoublem.thumbUplib.ThumbUpView;
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.squareup.picasso.Picasso;
 import com.ytying.emoji.StringUtil;
 
@@ -39,6 +32,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.hwwwwh.lexiangdaxue.FgSecondClass.activity.PostActivity;
+import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.DetailPostBean;
+import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.PicBean;
+import cn.hwwwwh.lexiangdaxue.FgSecondClass.other.NineGridPicLayout;
 import cn.hwwwwh.lexiangdaxue.LoginActivity;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.AppController;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SQLiteHandler;
@@ -46,9 +43,6 @@ import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
 import cn.hwwwwh.lexiangdaxue.R;
 import cn.hwwwwh.lexiangdaxue.other.AppConfig;
 import cn.hwwwwh.lexiangdaxue.other.HttpUtils;
-import cn.hwwwwh.lexiangdaxue.other.ParserJson;
-
-import static com.ytying.emoji.EmotionGridAdapter.dp2px;
 
 /**
  * Created by 97481 on 2017/6/5/ 0005.
@@ -65,14 +59,15 @@ public class DownloadDetailPostData extends AsyncTask<String,Void,List<DetailPos
     private NineGridPicLayout layout_nine_grid;
     private ImageView zeroComment;
     private RelativeLayout noCommentRL;
+    private ThumbUpView zan_btn;
     private SessionManager sessionManager;
     private SQLiteHandler sqLiteHandler;
-    private ThumbUpView zan_btn;
     public HashMap<String,String> hashMap;
     private ProgressDialog pDialog;
+    private PostActivity activity;
 
 
-    public DownloadDetailPostData(Context context,View itemView){
+    public DownloadDetailPostData(Context context,View itemView,PostActivity activity){
         this.context=context;
         this.itemView=itemView;
         sessionManager=new SessionManager(context);
@@ -80,6 +75,7 @@ public class DownloadDetailPostData extends AsyncTask<String,Void,List<DetailPos
         pDialog=new ProgressDialog(context);
         pDialog.setCancelable(true);
         hashMap=sqLiteHandler.getUserDetails();
+        this.activity=activity;
     }
 
     @Override
@@ -129,13 +125,13 @@ public class DownloadDetailPostData extends AsyncTask<String,Void,List<DetailPos
     }
 
     @Override
-    protected void onPostExecute(final List<DetailPostBean>  list) {
+    protected void onPostExecute(final List<DetailPostBean> list) {
         super.onPostExecute(list);
         if(list!=null){
             username=(TextView)itemView.findViewById(R.id.username);
             postTime=(TextView)itemView.findViewById(R.id.postTime);
-            post_goodcount=(TextView)itemView.getRootView().findViewById(R.id.post_goodcount);
-            zan_btn=(ThumbUpView)itemView.getRootView().findViewById(R.id.zan);
+            post_goodcount=(TextView)activity.findViewById(R.id.post_goodcount);
+            zan_btn=(ThumbUpView)activity.findViewById(R.id.zan_btn);
             zan_btn.setOnThumbUp(new ThumbUpView.OnThumbUp() {
                 @Override
                 public void like(boolean like) {
@@ -281,4 +277,5 @@ public class DownloadDetailPostData extends AsyncTask<String,Void,List<DetailPos
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
+
 }

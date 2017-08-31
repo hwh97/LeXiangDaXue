@@ -145,7 +145,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
                         select_hint.setText(((ProductActivity)activity).getAllSelectCount()+"");
                         TotalPrice = ((ProductActivity) activity).getSelectValue();
                         totalPrice.setText(TotalPrice + "");
-                        Toast.makeText(context, product_count.getText()+" ", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(context, "超过最大数量10", Toast.LENGTH_SHORT).show();
                     }
