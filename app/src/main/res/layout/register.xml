@@ -8,22 +8,13 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/register_toolbar"
-        android:background="@color/white"
+        android:background="@color/royalblue"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize">
     </android.support.v7.widget.Toolbar>
 
-    <cn.hwwwwh.lexiangdaxue.other.XCRoundImageView
-        android:id="@+id/headPic"
-        android:layout_below="@+id/register_toolbar"
-        android:src="@drawable/headpic"
-        android:background="@drawable/conner_headpic"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="15dp"
-        android:layout_width="100dp"
-        android:layout_height="100dp" />
     <RelativeLayout
-        android:layout_below="@+id/headPic"
+        android:layout_below="@+id/register_toolbar"
         android:id="@+id/zhanhao"
         android:background="@color/white"
         android:padding="8dp"

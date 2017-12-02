@@ -38,9 +38,9 @@ public class DownloadProductModel implements IDownloadProductModel {
     }
 
     @Override
-    public void downloadProduct(String url,String category) {
+    public void downloadProduct(String url) {
 
-        new DownloadProduct().execute(url,category);
+        new DownloadProduct().execute(url);
     }
 
     class DownloadProduct extends AsyncTask<String,Void,List<Product>> {
@@ -64,11 +64,13 @@ public class DownloadProductModel implements IDownloadProductModel {
         protected  List<Product> doInBackground(String... params) {
             List<Product> list=null;
             String jsonString=null;
-            Log.d("lexiangdaxueTag",params[0]+"  "+params[1]);
+            Log.d("lexiangdaxueTag",params[0]);
             byte[] b=HttpUtils.downloadFromNet(params[0]);
             jsonString=new String(b);
             Log.d("Tag",jsonString);
-            list= ParserJson.parserJsonToProduct(jsonString,params[1]);
+            if(ParserJson.isError(jsonString)){
+                list= ParserJson.parserJsonToProduct(jsonString);
+            }
             return list;
         }
     }

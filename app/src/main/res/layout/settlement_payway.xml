@@ -24,23 +24,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:id="@+id/onlinePay"
+                android:id="@+id/facePay"
                 android:background="@color/white"
-                android:text="在线支付"
+                android:text="货到付款"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:gravity="center_vertical|center_horizontal" />
             <View
                 android:id="@+id/fgx9"
-                android:layout_below="@id/onlinePay"
+                android:layout_below="@id/facePay"
                 android:layout_width="match_parent"
                 android:layout_height="0.4dp"
                 android:background="#cdcdcd" />
             <TextView
-                android:id="@+id/facePay"
+                android:id="@+id/onlinePay"
                 android:layout_below="@id/fgx9"
                 android:background="@color/white"
-                android:text="货到付款"
+                android:text="在线支付(暂不支持)"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:gravity="center_vertical|center_horizontal" />

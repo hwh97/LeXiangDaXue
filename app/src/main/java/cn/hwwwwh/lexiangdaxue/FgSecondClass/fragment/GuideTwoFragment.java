@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -72,14 +74,20 @@ public class GuideTwoFragment extends BaseFragment implements BGARefreshLayout.B
     protected void lazyLoad() {
         if(!isLazyLoad){
             isLazyLoad=true;
-            mFragments = new Fragment[2];
-            mFragments[0]  = FgSecondPageFragment.newInstance(0);
-            mFragments[1] = FgSecondPageFragment.newInstance(1);
-            fg2_fragmentPagerAdapter=new fg2_FragmentPagerAdapter(getFragmentManager(),mFragments);
-            fg2_viewPager.setAdapter(fg2_fragmentPagerAdapter);
-            fg2_viewPager.setOffscreenPageLimit(2);
-            fg2_tabLayout.setupWithViewPager(fg2_viewPager);
+            loadTab();
         }
+    }
+
+    public void loadTab(){
+        mFragments = new Fragment[2];
+        mFragments[0]  = FgSecondPageFragment.newInstance(0);
+        mFragments[1] = FgSecondPageFragment.newInstance(1);
+        fg2_fragmentPagerAdapter=new fg2_FragmentPagerAdapter(getFragmentManager(),mFragments);
+        fg2_viewPager.removeAllViewsInLayout();
+        fg2_viewPager.removeAllViews();
+        fg2_viewPager.setAdapter(fg2_fragmentPagerAdapter);
+        fg2_viewPager.setOffscreenPageLimit(2);
+        fg2_tabLayout.setupWithViewPager(fg2_viewPager);
     }
 
     @Override
@@ -124,7 +132,7 @@ public class GuideTwoFragment extends BaseFragment implements BGARefreshLayout.B
     }
 
 
-    public class fg2_FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
+    public class fg2_FragmentPagerAdapter extends FragmentStatePagerAdapter {
 
         final int PAGE_COUNT=2;
         private String tabTitles[]=new String[]{"最新","热门"};
@@ -139,6 +147,11 @@ public class GuideTwoFragment extends BaseFragment implements BGARefreshLayout.B
         @Override
         public CharSequence getPageTitle(int position) {
             return tabTitles[position];
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            return PagerAdapter.POSITION_NONE;
         }
 
         @Override

@@ -163,7 +163,7 @@ public abstract class NineGridLayout extends ViewGroup {
             setLayoutParams(params);
             imageView.layout(0, 0, singleImageSize, singleImageSize);
 
-            boolean isShowDefualt = displayOneImage(imageView, url, mTotalWidth,Integer.parseInt(mUrlList.get(0).getPic_width()),Integer.parseInt(mUrlList.get(0).getPic_height()),loadImageMode);
+            boolean isShowDefualt = displayOneImage(imageView, url, mTotalWidth,loadImageMode);
             if (isShowDefualt) {
                 layoutImageView(imageView, 0, url, false);
             } else {
@@ -334,7 +334,7 @@ public abstract class NineGridLayout extends ViewGroup {
      * @param parentWidth 父控件宽度
      * @return true 代表按照九宫格默认大小显示，false 代表按照自定义宽高显示
      */
-    protected abstract boolean displayOneImage(RatioImageView imageView, String url, int parentWidth,int picWidth,int picHeight,int loadImageMode);
+    protected abstract boolean displayOneImage(RatioImageView imageView, String url, int parentWidth,int loadImageMode);
 
     protected abstract void displayImage(RatioImageView imageView, String url,int loadImageMode);
 

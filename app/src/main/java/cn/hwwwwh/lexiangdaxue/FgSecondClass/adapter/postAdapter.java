@@ -27,6 +27,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.bumptech.glide.Glide;
 import com.jaeger.ninegridimageview.NineGridImageViewAdapter;
 import com.ldoublem.thumbUplib.ThumbUpView;
 import com.squareup.picasso.Picasso;
@@ -42,6 +43,7 @@ import java.util.Map;
 
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.activity.PostActivity;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.PicBean;
+import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.PostsBean;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.other.NineGridPicLayout;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.postData;
 import cn.hwwwwh.lexiangdaxue.LoginActivity;
@@ -50,6 +52,7 @@ import cn.hwwwwh.lexiangdaxue.LoginRegister.SQLiteHandler;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
 import cn.hwwwwh.lexiangdaxue.R;
 import cn.hwwwwh.lexiangdaxue.other.AppConfig;
+import cn.hwwwwh.lexiangdaxue.other.XCRoundImageView;
 
 /**
  * Created by 97481 on 2017/3/7/ 0007.
@@ -60,7 +63,7 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
     private View view;
     public Context context;
     public LayoutInflater inflater;
-    public List<postData> list;
+    public List<PostsBean.PostsDataBean> list;
     private ProgressDialog pDialog;
     private SQLiteHandler sqLiteHandler;
     public HashMap<String,String> hashMap;
@@ -86,11 +89,11 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        postData data=list.get(position);
+        PostsBean.PostsDataBean data=list.get(position);
         holder.bindData(data);
     }
 
-    public void addMoreData(List<postData> data){
+    public void addMoreData(List<PostsBean.PostsDataBean> data){
         if(list!=null){
             list.addAll(list.size(), data);
             notifyItemChanged(list.size());
@@ -103,7 +106,7 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
      *
      * @param data
      */
-    public void setData(List<postData> data) {
+    public void setData(List<PostsBean.PostsDataBean> data) {
         if (data != null) {
             list = data;
         } else {
@@ -150,17 +153,12 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
         public TextView comment_user3;
         public TextView comment_content3;
         public TextView allComment;
-        public ImageView fg2_rv_img1;
-        public ImageView fg2_rv_img2;
-        public ImageView fg2_rv_img3;
-        public RelativeLayout thirdRl;
-        public TextView pic_num;
-        public LinearLayout imgs;
         public TextView seeAll;
         public LinearLayout LL_zan;
         public ThumbUpView zan_pic;
         public RelativeLayout post_rv;
         public NineGridPicLayout layout;
+        public XCRoundImageView headPic;
 
         private NineGridImageViewAdapter<PicBean> mAdapter = new NineGridImageViewAdapter<PicBean>() {
 
@@ -195,32 +193,25 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
             comment_user3=(TextView)itemView.findViewById(R.id.comment_user3);
             comment_content3=(TextView)itemView.findViewById(R.id.comment_content3);
             allComment=(TextView)itemView.findViewById(R.id.allComment);
-//            fg2_rv_img1=(ImageView)itemView.findViewById(R.id.fg2_rv_img1);
-//            fg2_rv_img2=(ImageView)itemView.findViewById(R.id.fg2_rv_img2);
-//            fg2_rv_img3=(ImageView)itemView.findViewById(R.id.fg2_rv_img3);
-//            thirdRl=(RelativeLayout)itemView.findViewById(R.id.thirdRl);
-//            pic_num=(TextView)itemView.findViewById(R.id.pic_num);
-//            imgs=(LinearLayout)itemView.findViewById(R.id.imgs);
             seeAll=(TextView)itemView.findViewById(R.id.seeAll);
             LL_zan=(LinearLayout)itemView.findViewById(R.id.LL_zan);
             zan_pic=(ThumbUpView)itemView.findViewById(R.id.zan_pic);
             post_rv=(RelativeLayout)itemView.findViewById(R.id.post_rv);
             layout=(NineGridPicLayout)itemView.findViewById(R.id.layout_nine_grid);
+            headPic=(XCRoundImageView)itemView.findViewById(R.id.headPic);
         }
 
-        public void bindData(final postData data){
-            final int img_num=Integer.parseInt(data.getImgNum());
+        public void bindData(final PostsBean.PostsDataBean data){
+            final int img_num=data.getPost_imgnum();
             if(img_num>0) {
                 // new DownloadDetailPicData2(context, layout).execute("http://cs.hwwwwh.cn/admin/SinglePostPicApi.php?post_uuid=" + data.getPostUuid());
                 List<PicBean> urlList = new ArrayList<>();//图片url
                 if (img_num==1) {
                     PicBean picBean=new PicBean();
-                    picBean.setPic_url(data.getPictureUrl1());
-                    picBean.setPic_width(data.getPicture1Width());
-                    picBean.setPic_height(data.getPicture1Height());
+                    picBean.setPic_url(data.getPicture().get(0));
                     urlList.add(picBean);
                 }else {
-                    List<String> picsData=data.getPicsData();
+                    List<String> picsData=data.getPicture();
                     for(int j=0;j<picsData.size();j++){
                         PicBean picBean=new PicBean();
                         picBean.setPic_url(picsData.get(j));
@@ -236,16 +227,19 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
             }else{
                 layout.setVisibility(View.GONE);
             }
+            if(data.getHeadPic()!=null){
+                Glide.with(context).load(data.getHeadPic()).asBitmap().into(headPic);
+            }
             post_rv.setOnClickListener(this);
-            post_admin.setText(data.getPostAdmin());
-            post_createtime.setText(data.getCreateTime());
-            SpannableString content2=StringUtil.stringToSpannableString(data.getPostContent(),context);
+            post_admin.setText(data.getPost_admin());
+            post_createtime.setText(data.getPost_createtime());
+            SpannableString content2=StringUtil.stringToSpannableString(data.getPost_content(),context);
             post_content.setText(content2);
             post_content.setOnClickListener(this);
             post_content.setVerticalScrollBarEnabled(false);
             dealContent(data);
-            comment_count.setText(data.getCommentCount());
-            good_count.setText(data.getGoodCount());
+            comment_count.setText(data.getPost_commentcount()+"");
+            good_count.setText(data.getPost_goodcount()+"");
             zan_pic.setUnLikeType(ThumbUpView.LikeType.broken);
             zan_pic.setCracksColor(Color.rgb(255, 153, 0));
             zan_pic.setFillColor(Color.rgb(255, 153, 0));
@@ -255,22 +249,22 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
                 public void like(boolean like) {
                         if(like){
                             if(session.isLoggedIn()) {
-                                data.setIsZan(true);
+                                data.setIsZan("1");
                                 int count=(Integer.parseInt(good_count.getText().toString())+1);
                                 good_count.setText(count+"");
-                                data.setGoodCount(count+"");
-                                sendPost(hashMap,data.getPostUuid(),"0");
+                                data.setPost_goodcount(count);
+                                sendPost(hashMap,data.getPost_uuid(),"0");
                             }else{
                                 zan_pic.stopAnim();
                                 logoutUser();
                             }
                         }else{
                             if(session.isLoggedIn()) {
-                                data.setIsZan(false);
+                                data.setIsZan("0");
                                 int count=(Integer.parseInt(good_count.getText().toString())-1);
                                 good_count.setText(count+"");
-                                data.setGoodCount(count+"");
-                                sendPost(hashMap,data.getPostUuid(),"1");
+                                data.setPost_goodcount(count);
+                                sendPost(hashMap,data.getPost_uuid(),"1");
                             }else{
                                 zan_pic.stopAnim();
                                 logoutUser();
@@ -278,123 +272,71 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
                         }
                 }
             });
-            if (data.getIsZan()){
+            if (data.getIsZan().equals("1")){
                 zan_pic.setLike();
             }else{
                 zan_pic.setUnlike();
             }
-            int i=Integer.parseInt(data.getCommentCount());
+            int i=data.getPost_commentcount();
             if(i>3){
                 allComment.setVisibility(View.VISIBLE);
                 allComment.setText("查看所有"+i+"条评论");
             }else{
                 allComment.setVisibility(View.GONE);
             }
-            if(data.getComment1()!=null){
-                area_comment.setVisibility(View.VISIBLE);
-                comment_user1.setVisibility(View.VISIBLE);
-                comment_content1.setVisibility(View.VISIBLE);
-                comment_user1.setText(data.getUser1()+":");
-                //超过字符显示...
-                StringBuffer a=new StringBuffer(data.getComment1());
-                if(a.length()>80){
-                    a=a.replace(80,a.length(),"...");
-                }
-                SpannableString content=StringUtil.stringToSpannableString(a.toString(),context);
-                comment_content1.setText(content);
-                //加载第二条评论
-                if(data.getComment2()!=null){
-                    comment_user2.setVisibility(View.VISIBLE);
-                    comment_content2.setVisibility(View.VISIBLE);
-                    comment_user2.setText(data.getUser2()+":");
-                    //超过字符显示...
-                    StringBuffer b=new StringBuffer(data.getComment2());
-                    if(b.length()>80){
-                        b=b.replace(80,b.length(),"...");
-                    }
-                    content=StringUtil.stringToSpannableString(b.toString(),context);
-                    comment_content2.setText(content);
-                    //加载第三条评论
-                    if(data.getComment3()!=null){
-                        comment_user3.setVisibility(View.VISIBLE);
-                        comment_content3.setVisibility(View.VISIBLE);
-                        comment_user3.setText(data.getUser3()+":");
-                        //超过字符显示...
-                        StringBuffer c=new StringBuffer(data.getComment3());
-                        if(c.length()>80){
-                            c=c.replace(80,c.length(),"...");
-                        }
-                        content=StringUtil.stringToSpannableString(c.toString(),context);
-                        comment_content3.setText(content, TextView.BufferType.SPANNABLE);
-                    }else{
+            if(data.getComment()!=null) {
+                for (int j = 0; j < data.getComment().size(); j++) {
+                    SpannableString content;
+                    if (j == 0) {
+                        area_comment.setVisibility(View.VISIBLE);
+                        comment_user1.setVisibility(View.VISIBLE);
+                        comment_content1.setVisibility(View.VISIBLE);
+                        comment_user2.setVisibility(View.GONE);
+                        comment_content2.setVisibility(View.GONE);
                         comment_user3.setVisibility(View.GONE);
                         comment_content3.setVisibility(View.GONE);
+                        comment_user1.setText(data.getComment().get(0).getReply_admin() + ":");
+                        //超过字符显示...
+                        StringBuffer a = new StringBuffer(data.getComment().get(0).getReply_content());
+                        if (a.length() > 80) {
+                            a = a.replace(80, a.length(), "...");
+                        }
+                        content = StringUtil.stringToSpannableString(a.toString(), context);
+                        comment_content1.setText(content);
+                    } else if (j == 1) {
+                        comment_user2.setVisibility(View.VISIBLE);
+                        comment_content2.setVisibility(View.VISIBLE);
+                        comment_user3.setVisibility(View.GONE);
+                        comment_content3.setVisibility(View.GONE);
+                        comment_user2.setText(data.getComment().get(1).getReply_admin() + ":");
+                        //超过字符显示...
+                        StringBuffer b = new StringBuffer(data.getComment().get(1).getReply_content());
+                        if (b.length() > 80) {
+                            b = b.replace(80, b.length(), "...");
+                        }
+                        content = StringUtil.stringToSpannableString(b.toString(), context);
+                        comment_content2.setText(content);
+                    } else if (j == 2) {
+                        comment_user3.setVisibility(View.VISIBLE);
+                        comment_content3.setVisibility(View.VISIBLE);
+                        comment_user3.setText(data.getComment().get(2).getReply_admin() + ":");
+                        //超过字符显示...
+                        StringBuffer c = new StringBuffer(data.getComment().get(2).getReply_content());
+                        if (c.length() > 80) {
+                            c = c.replace(80, c.length(), "...");
+                        }
+                        content = StringUtil.stringToSpannableString(c.toString(), context);
+                        comment_content3.setText(content, TextView.BufferType.SPANNABLE);
+                    } else {
+                        return;
                     }
-                }else{
-                    comment_user2.setVisibility(View.GONE);
-                    comment_content2.setVisibility(View.GONE);
-                    comment_user3.setVisibility(View.GONE);
-                    comment_content3.setVisibility(View.GONE);
                 }
             }else{
                 area_comment.setVisibility(View.GONE);
             }
-//            //显示图片逻辑
-
-//            if(img_num>3){
-//                thirdRl.setVisibility(View.VISIBLE);
-//                pic_num.setVisibility(View.VISIBLE);
-//                pic_num.setText(img_num+"张");
-//            }
-//            if(img_num==1) {
-//                int screenWidth = getScreenWidth(context);
-//                fg2_rv_img2.setVisibility(View.GONE);
-//                fg2_rv_img1.setMaxHeight(screenWidth*2);
-//                fg2_rv_img1.setMaxWidth((int)(screenWidth*0.7));
-//                thirdRl.setVisibility(View.GONE);
-//                LinearLayout.LayoutParams layoutParams= (LinearLayout.LayoutParams) fg2_rv_img1.getLayoutParams();
-//                int width=Integer.parseInt(data.getPicture1Width());
-//                int height=Integer.parseInt(data.getPicture1Height());
-//                if(width>(int)(screenWidth*0.8)){
-//                    layoutParams=new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//                    layoutParams.weight = 0;
-//                    fg2_rv_img1.setScaleType(ImageView.ScaleType.FIT_XY);
-//                }
-//                else{
-//                    layoutParams = new LinearLayout.LayoutParams(width, height);
-//                    layoutParams.weight = 0;
-//                    fg2_rv_img1.setScaleType(ImageView.ScaleType.FIT_XY);
-//                }
-//                fg2_rv_img1.setLayoutParams(layoutParams);
-//            }else{
-//                if(img_num==2){
-//                    thirdRl.setVisibility(View.INVISIBLE);
-//                }
-//                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, getPixelsFromDp(80));
-//                layoutParams.weight = 1;
-//                fg2_rv_img1.setScaleType(ImageView.ScaleType.CENTER_CROP);
-//                fg2_rv_img1.setLayoutParams(layoutParams);
-//            }
-//            if(data.getPictureUrl1()!=null){
-//                imgs.setVisibility(View.VISIBLE);
-//                fg2_rv_img1.setVisibility(View.VISIBLE);
-//                Glide.with(context).load(data.getPictureUrl1()).diskCacheStrategy(DiskCacheStrategy.ALL).placeholder(R.drawable.loadpic).dontAnimate().into(fg2_rv_img1);
-//                if(data.getPictureUrl2()!=null){
-//                    fg2_rv_img2.setVisibility(View.VISIBLE);
-//                    Glide.with(context).load(data.getPictureUrl2()).diskCacheStrategy(DiskCacheStrategy.ALL).placeholder(R.drawable.loadpic).dontAnimate().into(fg2_rv_img2);
-//                    if(data.getPictureUrl3()!=null){
-//                        thirdRl.setVisibility(View.VISIBLE);
-//                        fg2_rv_img3.setVisibility(View.VISIBLE);
-//                        Glide.with(context).load(data.getPictureUrl3()).diskCacheStrategy(DiskCacheStrategy.ALL).placeholder(R.drawable.loadpic).dontAnimate().into(fg2_rv_img3);
-//                    }
-//                }
-//            }else{
-//                imgs.setVisibility(View.GONE);
-//            }
-//
         }
 
-        public void dealContent(final postData data){
+        public void dealContent(final PostsBean.PostsDataBean data){
             /*通过textview获取Layout，然后根据Layout的一个方法getEllipsisCount(int)，
             来判断是否已经省略，但Layout大多时候获取到的都是null，为什么呢？原因是，Layout要等TextView绘制完了才能够拿到Layout的对象。以下两种方法*/
            /* ViewTreeObserver vto =post_reply.getViewTreeObserver();
@@ -409,8 +351,8 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
                     @Override
                     public void run() {
                         Layout l = post_content.getLayout();
-                        Log.d("lexiangdx", l.getLineCount() + " ");
-                        Log.d("lexiangdx", l.getEllipsisCount(l.getLineCount() - 1) + " ");
+//                        Log.d("lexiangdx", l.getLineCount() + " ");
+//                        Log.d("lexiangdx", l.getEllipsisCount(l.getLineCount() - 1) + " ");
                         if (l != null) {
                             int lines = l.getLineCount();
                             if (lines > 0) {
@@ -440,28 +382,13 @@ public class postAdapter extends RecyclerView.Adapter<postAdapter.ViewHolder> {
 
         }
 
-        public  int getScreenWidth(Context context) {
-            WindowManager manager = (WindowManager) context
-                    .getSystemService(Context.WINDOW_SERVICE);
-            Display display = manager.getDefaultDisplay();
-            return display.getWidth();
-        }
-
-        private int getPixelsFromDp(int size){
-
-            DisplayMetrics metrics =context.getResources().getDisplayMetrics();
-
-            return(size * metrics.densityDpi) / DisplayMetrics.DENSITY_DEFAULT;
-
-        }
-
         @Override
         public void onClick(View v) {
             switch (v.getId()){
                 case R.id.post_rv: case R.id.post_content:
-                    postData data=list.get(getLayoutPosition());
+                    PostsBean.PostsDataBean data=list.get(getLayoutPosition());
                     Intent intent =new Intent(context,PostActivity.class);
-                    intent.putExtra("post_uuid",data.getPostUuid());
+                    intent.putExtra("post_uuid",data.getPost_uuid());
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
                     break;

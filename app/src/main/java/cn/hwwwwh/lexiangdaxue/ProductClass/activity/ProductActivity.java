@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -27,6 +28,7 @@ import android.widget.Toast;
 import com.flipboard.bottomsheet.BottomSheetLayout;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +49,12 @@ import cn.hwwwwh.lexiangdaxue.other.ArithUtil;
 import cn.hwwwwh.lexiangdaxue.other.BaseActivity;
 import cn.hwwwwh.lexiangdaxue.other.ToastUtil;
 import cn.hwwwwh.lexiangdaxue.other.AppConfig;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import me.majiajie.swipeback.SwipeBackActivity;
 
 /**
@@ -72,6 +80,8 @@ public class ProductActivity extends BaseActivity implements View.OnClickListene
     private DownloadActivityPresenter downloadActivityPresenter;
     private SessionManager session;
     private SQLiteHandler db;
+    //初始全部分类Id
+    private String CategoryId;
 
     @Override
     protected void initView(Bundle savedInstanceState) {
@@ -122,21 +132,18 @@ public class ProductActivity extends BaseActivity implements View.OnClickListene
         Intent intent=this.getIntent();
         column=intent.getExtras().getString("column");
         if(column.equals("零食")){
-            /*new DownloadCategory(ProductActivity.this, rv_Category).execute(urlPath);
-            new DownloadGongGao(this,ProductActivity.this).execute(urlPathGongGao);*/
-            downloadActivityPresenter.downloadCategory(AppConfig.urlPathCategory);
+            downloadActivityPresenter.downloadCategory(AppConfig.urlPathCategory+column);
             downloadActivityPresenter.downloadGonggao(AppConfig.urlPathGongGao);
             product_title.setText("零食店");
         }else if(column.equals("水果")){
-            downloadActivityPresenter.downloadCategory(AppConfig.urlPathFruitCategory);
+            downloadActivityPresenter.downloadCategory(AppConfig.urlPathCategory+column);
             downloadActivityPresenter.downloadGonggao(AppConfig.urlPathGongGaoFruit);
             product_title.setText("水果店");
         }else if(column.equals("早餐")){
-            downloadActivityPresenter.downloadCategory(AppConfig.urlPathBkfCategory);
+            downloadActivityPresenter.downloadCategory(AppConfig.urlPathCategory+column);
             downloadActivityPresenter.downloadGonggao(AppConfig.urlPathGongGaoBkf);
             product_title.setText("早餐店");
         }
-        initProduct();
     }
 
     public void initProduct(){
@@ -146,10 +153,16 @@ public class ProductActivity extends BaseActivity implements View.OnClickListene
         fragmentTransaction.replace(R.id.fragment_container, productFragment);
         //通过bundle传值给MyFragment
         Bundle bundle = new Bundle();
-        bundle.putString(ProductFragment.TAG,"全部分类");
+        bundle.putString(ProductFragment.TAG,CategoryId);
         bundle.putString("column",column);
         productFragment.setArguments(bundle);
-        fragmentTransaction.commit();
+        // java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
+        fragmentTransaction.commitAllowingStateLoss();
+    }
+    // java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        // super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -227,9 +240,9 @@ public class ProductActivity extends BaseActivity implements View.OnClickListene
         editor.putBoolean("isFirstLoad", true);
         editor.putBoolean("isToday", true);
         editor.putString("time", "尽快送达");
-        editor.putString("payWay","在线支付");
+        editor.putString("payWay","货到付款");
         editor.putString("note","");
-        editor.commit();
+        editor.apply();
     }
 
     @Override
@@ -307,6 +320,8 @@ public class ProductActivity extends BaseActivity implements View.OnClickListene
             //更新rv
             CategoryAdapter adapterCategory = new CategoryAdapter(ProductActivity.this,categories);
             rv_Category.setAdapter(adapterCategory);
+            CategoryId=String.valueOf(categories.get(0).getId());
+            initProduct();
         }else{
             ToastUtil.show("数据加载失败");
         }
@@ -322,4 +337,5 @@ public class ProductActivity extends BaseActivity implements View.OnClickListene
             ToastUtil.show("数据加载失败");
         }
     }
+
 }

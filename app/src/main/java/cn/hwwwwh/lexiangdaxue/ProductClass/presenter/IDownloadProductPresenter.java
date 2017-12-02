@@ -13,9 +13,8 @@ public interface IDownloadProductPresenter {
 
     /**
      * @param url
-     * @param category
      */
-    void downloadProduct(String url, String category);
+    void downloadProduct(String url);
 
 
     /**

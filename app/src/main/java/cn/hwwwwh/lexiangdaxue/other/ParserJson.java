@@ -14,12 +14,12 @@ import java.util.List;
 import cn.hwwwwh.lexiangdaxue.FgFourthClass.bean.AddressBean;
 import cn.hwwwwh.lexiangdaxue.FgFourthClass.bean.userBean;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.DetailPostBean;
-import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.ReplyBean;
+import cn.hwwwwh.lexiangdaxue.FgSecondClass.ReplyBean;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.postData;
 import cn.hwwwwh.lexiangdaxue.FgFirstClass.bean.HomeData;
 import cn.hwwwwh.lexiangdaxue.ProductClass.bean.Category;
 import cn.hwwwwh.lexiangdaxue.ProductClass.bean.Product;
-import cn.hwwwwh.lexiangdaxue.SelltementClass.bean.Time;
+import cn.hwwwwh.lexiangdaxue.SelltementClass.bean.SelectTime;
 import cn.hwwwwh.lexiangdaxue.ShoppingClass.bean.QuanGoods;
 import cn.hwwwwh.lexiangdaxue.FgFirstClass.bean.picData;
 import cn.hwwwwh.lexiangdaxue.selectSchoolClass.bean.School;
@@ -29,13 +29,32 @@ import cn.hwwwwh.lexiangdaxue.selectSchoolClass.bean.School;
  */
 
 public class ParserJson {
+
+    public static boolean isError(String jsonString){
+        JSONObject jobj= null;
+        try {
+            jobj = new JSONObject(jsonString);
+            boolean error=jobj.getBoolean("error");
+            if(!error){
+               return true;
+            }else{
+                // Error in getting user data. Get the error message
+                String errorMsg = jobj.getString("error_msg");
+                Log.d("lexiangdaxueTag",errorMsg);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     //第二个参数为分类名字用于获取不同的json,商品
-    public static List<Product> parserJsonToProduct(String jsonString, String categoryName){
+    public static List<Product> parserJsonToProduct(String jsonString){
         List<Product> list=null;
         list=new ArrayList<>();
         try {
             JSONObject obj=new JSONObject(jsonString);
-            JSONArray arr=obj.getJSONArray(categoryName);
+            JSONArray arr=obj.getJSONArray("goods");
             for(int i=0;i<arr.length();i++){
                 JSONObject obj1 = arr.getJSONObject(i);
                 Product product = new Product();
@@ -100,25 +119,6 @@ public class ParserJson {
         return time;
     }
 
-    //送货时间
-    public static  List<Time> ParserJsonToSelectTime(String jsonString){
-        List<Time> time= null;
-        time=new ArrayList<>();
-        try {
-            JSONObject obj=new JSONObject(jsonString);
-            JSONArray arr=obj.getJSONArray("getFreeTime");
-            for(int i=0;i<arr.length();i++){
-                JSONObject obj1 = arr.getJSONObject(i);
-                Time time1 = new Time();
-                time1.setBeginTime(Integer.parseInt(obj1.getString("BeginTime")));
-                time1.setKeepTime(Integer.parseInt(obj1.getString("KeepTime")));
-                time.add(time1);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return time;
-    }
 
     //购物券商品
     public static List<QuanGoods> ParserJsonToQuanGoods(String jsonString){
@@ -183,7 +183,7 @@ public class ParserJson {
                 picDatas.setApppic_url((obj3.getString("apppic_url")));
                 dataList.add(picDatas);
             }
-            homeData.setPicData(dataList);
+           // homeData.setPicData(dataList);
 
             if(obj.has("UserUniversity")){
                 JSONArray arr3=obj.getJSONArray("UserUniversity");
@@ -194,7 +194,7 @@ public class ParserJson {
                 school.setName(obj4.getString("uu_name"));
                 school.setUniversity_id(obj4.getInt("university_id"));
                 school.setUid(obj4.getString("user_uuid"));
-                homeData.setSchoolData(school);
+               // homeData.setSchoolData(school);
             }
             list.add(homeData);
         } catch (JSONException e) {
@@ -202,6 +202,7 @@ public class ParserJson {
         }
         return list;
     }
+
     //帖子数据
     public static List<postData> getPostData(String jsonString){
         List<postData> list=new ArrayList<>();
@@ -240,17 +241,11 @@ public class ParserJson {
                 }
                 int Post_picNum=Integer.parseInt(obj1.getString("Post_imgnum"));
                 if(Post_picNum>0){
-                    if(Post_picNum==1){
-                        postData.setPictureUrl1(obj1.getString("picture1"));
-                        postData.setPicture1Height(obj1.getString("picture1Height"));
-                        postData.setPicture1Width(obj1.getString("picture1Width"));
-                    }else if(Post_picNum>=2) {
-                        List<String> list2=new ArrayList<>();
-                        for(int j=0;j<Post_picNum;j++){
-                            list2.add(obj1.getString("picture"+(j+1)));
-                        }
-                        postData.setPicsData(list2);
+                    List<String> list2=new ArrayList<>();
+                    for(int j=0;j<Post_picNum;j++){
+                        list2.add(obj1.getString("picture"+(j+1)));
                     }
+                    postData.setPicsData(list2);
                 }
                 if(obj1.getString("isZan").equals("1")){
                     postData.setIsZan(true);

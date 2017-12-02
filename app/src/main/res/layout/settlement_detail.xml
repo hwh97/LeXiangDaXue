@@ -167,7 +167,7 @@
             android:layout_centerVertical="true"
             android:layout_toStartOf="@+id/arrow_right3"
             android:textSize="14sp"
-            android:text="在线支付"/>
+            android:text="货到付款"/>
     </RelativeLayout>
 
     <RelativeLayout

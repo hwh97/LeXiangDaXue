@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ import com.flipboard.bottomsheet.BottomSheetLayout;
 
 import org.w3c.dom.Text;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import cn.hwwwwh.lexiangdaxue.ProductClass.activity.ProductActivity;
@@ -39,7 +41,7 @@ import static cn.hwwwwh.lexiangdaxue.other.AppConfig.urlPathFruitProduct;
  */
 public class ProductFragment extends BaseFragment implements IProductView {
     public static final String TAG="ProductFragment";
-    private String str;
+    private String category_Id;
     private RecyclerView recyclerView;
     private String column;
     private DownloadProductPresenter downloadProductPresenter;
@@ -50,7 +52,7 @@ public class ProductFragment extends BaseFragment implements IProductView {
     private List<Product> products;
     private ProductAdapter productAdapter;
     private ProductActivity productActivity;
-
+    private ImageView nogoods;
 
     @Override
     protected void initView(Bundle savedInstanceState) {
@@ -61,6 +63,7 @@ public class ProductFragment extends BaseFragment implements IProductView {
         priceHint=(TextView) productActivity.findViewById(R.id.priceHint);
         settlement=(Button) productActivity.findViewById(R.id.settlement);
         bottomSheetLayout=(BottomSheetLayout) productActivity.findViewById(R.id.bottomSheetLayout);
+        nogoods=getViewById(R.id.nogoods);
     }
 
     @Override
@@ -117,18 +120,19 @@ public class ProductFragment extends BaseFragment implements IProductView {
 
     @Override
     protected void processLogic(Bundle savedInstanceState) {
-        str=getArguments().getString(TAG);
+        category_Id=getArguments().getString(TAG);
         column=getArguments().getString("column");
         recyclerView.setLayoutManager(new LinearLayoutManager(productActivity, LinearLayoutManager.VERTICAL, false));
         downloadProductPresenter=new DownloadProductPresenter(this);
         downloadProductPresenter.attachView(getView());
+
         if(column.equals("零食")){
-            downloadProductPresenter.downloadProduct(AppConfig.urlPathProduct,str);
+            downloadProductPresenter.downloadProduct(AppConfig.urlPathProduct+category_Id);
            // new DownloadProduct(view.getContext(),recyclerView,str,getActivity()).execute(urlPath);
         }else if(column.equals("水果")){
-            downloadProductPresenter.downloadProduct(AppConfig.urlPathFruitProduct,str);
+            downloadProductPresenter.downloadProduct(AppConfig.urlPathProduct+category_Id);
         }else if(column.equals("早餐")){
-            downloadProductPresenter.downloadProduct(AppConfig.urlPathBkfProduct,str);
+            downloadProductPresenter.downloadProduct(AppConfig.urlPathProduct+category_Id);
         }else{
             Toast.makeText(getContext(), "加载失败请重新进入", Toast.LENGTH_SHORT).show();
         }
@@ -141,9 +145,11 @@ public class ProductFragment extends BaseFragment implements IProductView {
 
     @Override
     public void setProductView(List<Product> products) {
+        recyclerView.setVisibility(View.VISIBLE);
+        nogoods.setVisibility(View.GONE);
         if(productActivity!=null) {
             if(products != null && products.size() != 0){
-                this.products=products;
+                    this.products=products;
                     productAdapter = new ProductAdapter(mApp, products, productActivity);
                     recyclerView.setAdapter(productAdapter);
                     final List<Product> selectList = productActivity.getSelectList();
@@ -164,8 +170,15 @@ public class ProductFragment extends BaseFragment implements IProductView {
     }
 
     @Override
+    public void setFailView() {
+        recyclerView.setVisibility(View.GONE);
+        nogoods.setVisibility(View.VISIBLE);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         downloadProductPresenter.detachView();
     }
+
 }

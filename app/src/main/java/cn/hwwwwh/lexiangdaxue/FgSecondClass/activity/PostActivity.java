@@ -33,7 +33,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.bartoszlipinski.recyclerviewheader2.RecyclerViewHeader;
+import com.bumptech.glide.Glide;
 import com.ldoublem.thumbUplib.ThumbUpView;
 import com.squareup.picasso.Picasso;
 import com.ytying.emoji.SmileLayout;
@@ -53,8 +53,9 @@ import cn.bingoogolapple.refreshlayout.BGARefreshLayout;
 import cn.bingoogolapple.refreshlayout.BGARefreshViewHolder;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.DetailPostBean;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.PicBean;
-import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.ReplyBean;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.adapter.DeatailReplyAdapter;
+import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.PostBean;
+import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.ReplyBean;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.other.NineGridPicLayout;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.presenter.DownloadReplyPresenter;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.presenter.DownloadSinglePostPresenter;
@@ -68,6 +69,9 @@ import cn.hwwwwh.lexiangdaxue.R;
 import cn.hwwwwh.lexiangdaxue.other.AppConfig;
 import cn.hwwwwh.lexiangdaxue.other.BaseActivity;
 import cn.hwwwwh.lexiangdaxue.other.HttpUtils;
+import cn.hwwwwh.lexiangdaxue.other.XCRoundImageView;
+
+import static android.R.id.list;
 
 public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARefreshLayoutDelegate,ISinglePostView,IReplyView {
     //post布局
@@ -77,6 +81,7 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
     private TextView postTime;
     private TextView post_goodcount;
     private TextView post_content;
+    private XCRoundImageView headPic;
     private NineGridPicLayout layout_nine_grid;
     private ImageView zeroComment;
     private RelativeLayout noCommentRL;
@@ -110,7 +115,7 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
     private SQLiteHandler sqLiteHandler;
     public HashMap<String,String> hashMap;
     public boolean isReplyPost=true;
-    public ReplyBean replyBean;
+    public ReplyBean.ReplyDataBean replyBean;
     //用户信息
     private SessionManager session;
     private DownloadSinglePostPresenter downloadSinglePostPresenter;
@@ -193,7 +198,7 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
         adapter.setOnItemClickListener(new DeatailReplyAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position, Object data) {
-                replyBean=(ReplyBean)data;
+                replyBean=(ReplyBean.ReplyDataBean)data;
                 click_view.setVisibility(View.GONE);
                 reply_view.setVisibility(View.VISIBLE);
                 showKeyboard();
@@ -205,7 +210,8 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
             }
         });
         recyclerView.setAdapter(adapter);
-        downloadReplyPresenter.download(handleUrl("http://cs.hwwwwh.cn/admin/ReplyPostApi.php?post_uuid="+post_uuid+"&&Page="+page));
+        downloadReplyPresenter.download(AppConfig.urlPostsApi,post_uuid,page,
+                getUserDetails().get("token"),getPhoneId());
         initRefreshLayout(mRefreshLayout);
         smileLayout.setVisibility(View.GONE);
         //!!!初始化，这句话一定要加
@@ -332,7 +338,7 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
 
     private void setHeader(RecyclerView view) {
         header = LayoutInflater.from(this).inflate(R.layout.post_content, view, false);
-        downloadSinglePostPresenter.download("http://cs.hwwwwh.cn/admin/SinglePostApi.php?post_uuid=" + post_uuid+"&&email="+hashMap.get("email"));
+        downloadSinglePostPresenter.download(AppConfig.urlPostsApi,getPhoneId(),getUserDetails().get("token"),post_uuid);
         //new DownloadDetailPostData(this,header,PostActivity.this).execute("http://cs.hwwwwh.cn/admin/SinglePostApi.php?post_uuid=" + post_uuid+"&&email="+hashMap.get("email"));
         adapter.setHeaderView(header);
     }
@@ -382,7 +388,8 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
                 protected void onPostExecute(Void aVoid) {
                     page=1;
                     // 加载完毕后在 UI 线程结束下拉刷新
-                    downloadReplyPresenter.download(handleUrl("http://cs.hwwwwh.cn/admin/ReplyPostApi.php?post_uuid="+post_uuid+"&&Page=1"));
+                    downloadReplyPresenter.download(AppConfig.urlPostsApi,post_uuid,page,
+                            getUserDetails().get("token"),getPhoneId());
                    // new DownloadReplyData(PostActivity.this,adapter,page,0).execute();
                     setHeader(recyclerView);
                     recyclerView.setAdapter(adapter);
@@ -418,7 +425,8 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
                 protected void onPostExecute(Void aVoid) {
                     endLoadingMore();
                     page=page+1;
-                    downloadReplyPresenter.download(handleUrl("http://cs.hwwwwh.cn/admin/ReplyPostApi.php?post_uuid="+post_uuid+"&&Page="+page));
+                    downloadReplyPresenter.download(AppConfig.urlPostsApi,post_uuid,page,
+                            getUserDetails().get("token"),getPhoneId());
                    // new DownloadReplyData(PostActivity.this,adapter,page,1).execute("http://cs.hwwwwh.cn/admin/ReplyPostApi.php?post_uuid="+post_uuid+"&&Page="+page);
                     // 加载完毕后在 UI 线程结束下拉刷新
 
@@ -453,8 +461,8 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
     }
 
     @Override
-    public void setPostView(final List<DetailPostBean> list) {
-        if(list!=null){
+    public void setPostView(final PostBean.SinglePostBean singlePostBean) {
+        if(singlePostBean!=null){
             username=(TextView)header.findViewById(R.id.username);
             postTime=(TextView)header.findViewById(R.id.postTime);
             post_goodcount=(TextView)findViewById(R.id.post_goodcount);
@@ -464,22 +472,22 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
                 public void like(boolean like) {
                     if(like){
                         if(session.isLoggedIn()) {
-                            list.get(0).setZan(true);
+                            singlePostBean.setIsZan("1");
                             int count = (Integer.parseInt(post_goodcount.getText().toString()) + 1);
                             post_goodcount.setText(count + "");
-                            list.get(0).setGoodCount(count+"");
-                            sendPost(hashMap,list.get(0).getPostUuid(),"0");
+                            singlePostBean.setPost_goodcount(count);
+                            sendPost(hashMap,singlePostBean.getPost_uuid(),"0");
                         }else{
                             zan_btn.stopAnim();
                             logoutUser();
                         }
                     }else{
                         if(session.isLoggedIn()) {
-                            list.get(0).setZan(false);
+                            singlePostBean.setIsZan("0");
                             int count=(Integer.parseInt(post_goodcount.getText().toString())-1);
                             post_goodcount.setText(count+"");
-                            list.get(0).setGoodCount(count+"");
-                            sendPost(hashMap,list.get(0).getPostUuid(),"1");
+                            singlePostBean.setPost_goodcount(count);
+                            sendPost(hashMap,singlePostBean.getPost_uuid(),"1");
                         }else{
                             zan_btn.stopAnim();
                             zan_btn.setLike();
@@ -488,7 +496,7 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
                     }
                 }
             });
-            if (list.get(0).isZan){
+            if (singlePostBean.getIsZan().equals("1")){
                 zan_btn.setLike();
             }else{
                 zan_btn.setUnlike();
@@ -498,35 +506,43 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
             layout_nine_grid.setContext(this);
             zeroComment=(ImageView)header.findViewById(R.id.zeroComment);
             noCommentRL=(RelativeLayout)header.findViewById(R.id.noCommentRL);
-            username.setText(list.get(0).getPostAdmin());
-            postTime.setText(list.get(0).getCreateTime());
-            post_goodcount.setText(list.get(0).getGoodCount());
-            SpannableString content= StringUtil.stringToSpannableString(list.get(0).getPostContent().toString(),this);
+            headPic=(XCRoundImageView) header.findViewById(R.id.headPic);
+            username.setText(singlePostBean.getPost_admin());
+            postTime.setText(singlePostBean.getPost_createtime());
+            post_goodcount.setText(singlePostBean.getPost_goodcount()+"");
+            SpannableString content= StringUtil.stringToSpannableString(singlePostBean.getPost_content(),this);
             post_content.setText(content);
-            int imgs=Integer.parseInt(list.get(0).getImgNum());
-            List<String> picsData=list.get(0).getPicsData();
-            // new DownloadDetailPicData2(context, layout).execute("http://cs.hwwwwh.cn/admin/SinglePostPicApi.php?post_uuid=" + data.getPostUuid());
-            List<PicBean> urlList = new ArrayList<>();//图片url
-            if (imgs == 1) {
-                PicBean picBean = new PicBean();
-                picBean.setPic_url(list.get(0).getPictureUrl1());
-                picBean.setPic_width(list.get(0).getPicture1Width());
-                picBean.setPic_height(list.get(0).getPicture1Height());
-                urlList.add(picBean);
 
-            } else if(imgs>1){
-                for (int j = 0; j < picsData.size(); j++) {
-                    PicBean picBean = new PicBean();
-                    picBean.setPic_url(picsData.get(j));
+            final int img_num=singlePostBean.getPost_imgnum();
+            if(img_num>0) {
+                // new DownloadDetailPicData2(context, layout).execute("http://cs.hwwwwh.cn/admin/SinglePostPicApi.php?post_uuid=" + data.getPostUuid());
+                List<PicBean> urlList = new ArrayList<>();//图片url
+                if (img_num==1) {
+                    PicBean picBean=new PicBean();
+                    picBean.setPic_url(singlePostBean.getPicture().get(0));
                     urlList.add(picBean);
+                }else {
+                    List<String> picsData=singlePostBean.getPicture();
+                    for(int j=0;j<picsData.size();j++){
+                        PicBean picBean=new PicBean();
+                        picBean.setPic_url(picsData.get(j));
+                        urlList.add(picBean);
+                    }
                 }
+                //1表示用ImageLoader加载
+                layout_nine_grid.setloadImageMode(1);
+                layout_nine_grid.setIsShowAll(false); //当传入的图片数超过9张时，是否全部显示
+                layout_nine_grid.setContext(getApplicationContext());
+                layout_nine_grid.setSpacing(10); //动态设置图片之间的间隔
+                layout_nine_grid.setUrlList(urlList); //最后再设置图片url
+
+            }else{
+                layout_nine_grid.setVisibility(View.GONE);
             }
-            //1表示用ImageLoader加载
-            layout_nine_grid.setloadImageMode(1);
-            layout_nine_grid.setIsShowAll(false); //当传入的图片数超过9张时，是否全部显示
-            layout_nine_grid.setSpacing(20); //动态设置图片之间的间隔
-            layout_nine_grid.setUrlList(urlList); //最后再设置图片url
-            if(list.get(0).getCommentCount().equals("0")){
+            if(singlePostBean.getHeadPic()!=null){
+                Glide.with(getApplicationContext()).load(singlePostBean.getHeadPic()).asBitmap().into(headPic);
+            }
+            if(singlePostBean.getPost_commentcount()==0){
                 noCommentRL.setVisibility(View.VISIBLE);
                 Picasso.with(this).load(R.drawable.nocomment).config(Bitmap.Config.RGB_565).resize(500,500).into(zeroComment);
                 //Glide.with(context).load(R.drawable.nocomment).into(zeroComment);
@@ -539,12 +555,12 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
     }
 
     @Override
-    public void downloadPostFail() {
-        ShowToast("加载帖子内容出错");
+    public void downloadPostFail(String msg) {
+        ShowToast(msg);
     }
 
     @Override
-    public void setReplyView(ArrayList<ReplyBean> replyData) {
+    public void setReplyView(List<ReplyBean.ReplyDataBean> replyData) {
         if(replyData != null && replyData.size()!=0 && page ==1){
             adapter.refreshDatas();
             adapter.popReply.clear();
@@ -559,9 +575,9 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
     }
 
     @Override
-    public void downloadReplyFail() {
+    public void downloadReplyFail(String msg) {
         mRefreshLayout.setIsShowLoadingMoreView(false);
-        ShowToast("没有更多回复了");
+        ShowToast(msg);
     }
 
     //回复帖子的
@@ -614,7 +630,7 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
         AppController.getInstance().addToRequestQueue(stringRequest,"PostActivity");
     }
     //回复帖子回复的
-    public void sendPost(final HashMap<String, String> hashMap,final ReplyBean replyBean, final String post_uuid, final String content,final String isposts){
+    public void sendPost(final HashMap<String, String> hashMap,final ReplyBean.ReplyDataBean replyBean, final String post_uuid, final String content,final String isposts){
         pDialog.setMessage("提交数据中...");
         showDialog();
 
@@ -732,8 +748,13 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
         startActivity(intent);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AppController.getInstance().cancelPendingRequests("DetailPostAdapter");
+    }
 
-    class DownloadReplyData extends AsyncTask<String,Void,ArrayList<ReplyBean>>{
+  /*  class DownloadReplyData extends AsyncTask<String,Void,ArrayList<ReplyBean>>{
 
         private Context context;
         private DeatailReplyAdapter adapter;
@@ -820,5 +841,5 @@ public class PostActivity extends BaseActivity implements BGARefreshLayout.BGARe
             }
         }
 
-    }
+    }*/
 }

@@ -3,9 +3,14 @@ package cn.hwwwwh.lexiangdaxue;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -26,12 +31,14 @@ import cn.hwwwwh.lexiangdaxue.LoginRegister.AppController;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SQLiteHandler;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
 import cn.hwwwwh.lexiangdaxue.other.AppConfig;
+import cn.hwwwwh.lexiangdaxue.other.AppUtils;
+import cn.hwwwwh.lexiangdaxue.other.BaseActivity;
 import cn.hwwwwh.lexiangdaxue.other.RxBus;
 
 /**
  * Created by 97481 on 2016/10/13.
  */
-public class LoginActivity extends Activity implements View.OnClickListener {
+public class LoginActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = LoginActivity.class.getSimpleName();
     private Button btnLogin;
     private TextView btnLinkToRegister;
@@ -40,15 +47,41 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     private ProgressDialog pDialog;
     private SessionManager session;
     private SQLiteHandler db;
+    private Toolbar toolbar_login;
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
+    protected void initView(Bundle savedInstanceState) {
         setContentView(R.layout.activity_login);
         inputEmail=(EditText)findViewById(R.id.email);
         inputPassword=(EditText)findViewById(R.id.password);
         btnLogin=(Button)findViewById(R.id.btnLogin);
         btnLinkToRegister=(TextView)findViewById(R.id.register);
+        toolbar_login=getViewById(R.id.toolbar_login);
+    }
+
+    @Override
+    protected void setListener() {
+        btnLogin.setOnClickListener(this);
+        btnLinkToRegister.setOnClickListener(this);
+    }
+
+    @Override
+    protected void processLogic(Bundle savedInstanceState) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor("#4169E1"));
+        }
+        toolbar_login.setTitle("登陆");
+        toolbar_login.setTitleTextColor(Color.WHITE);
+        setSupportActionBar(toolbar_login);
+        toolbar_login.setNavigationIcon(R.drawable.ic_keyboard_backsoace_24dp1_white);
+        toolbar_login.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         //progress dialog
         pDialog=new ProgressDialog(this);
         pDialog.setCancelable(false);
@@ -63,9 +96,8 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             startActivity(intent);
             finish();
         }
-        btnLogin.setOnClickListener(this);
-        btnLinkToRegister.setOnClickListener(this);
     }
+
     //button click even
     @Override
     public void onClick(View v) {
@@ -116,9 +148,9 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                         JSONObject user = jobj.getJSONObject("user");
                         String name = user.getString("name");
                         String email = user.getString("email");
-                        String created_at = user
-                                .getString("created_at");
-                        db.addUser(name, email, uid, created_at);
+                        String created_at = user.getString("created_at");
+                        String token=user.getString("token");
+                        db.addUser(name, email, uid, created_at,token);
                         if (jobj.has("university")) {
                             //university 实例
                             JSONObject university = jobj.getJSONObject("university");
@@ -128,8 +160,9 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                             String uu_name = university.getString("uu_name");
                             String university_id = university.getString("university_id");
                             db.addUniversity(user_uuid, uu_province, uu_city, uu_name, university_id);
-                            RxBus.getInstance().post(uu_name);
+                            RxBus.getIntanceBus().post(uu_name);
                         }
+                        RxBus.getIntanceBus().post(3);
 //                        Intent intent = new Intent(LoginActivity.this,
 //                                MainActivity.class);
 //                        startActivity(intent);
@@ -159,6 +192,8 @@ public class LoginActivity extends Activity implements View.OnClickListener {
               Map<String,String> params=new HashMap<String,String>();
               params.put("email", email);
               params.put("password", password);
+              AppUtils appUtils=new AppUtils(getApplicationContext());
+              params.put("deviceId",appUtils.getPesudoUniqueID());
               return params;
           }
         };

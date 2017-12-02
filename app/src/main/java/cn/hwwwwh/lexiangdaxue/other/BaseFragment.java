@@ -39,6 +39,7 @@ import cn.hwwwwh.lexiangdaxue.selectSchoolClass.activity.selectActivity;
     protected final String TAG = "LazyLoadFragment";
     private SessionManager session;
     private SQLiteHandler db;
+    private AppUtils appUtils;
 
 
 
@@ -48,6 +49,7 @@ import cn.hwwwwh.lexiangdaxue.selectSchoolClass.activity.selectActivity;
         mApp=AppController.getInstance();
         session=new SessionManager(mApp);
         db=new SQLiteHandler(mApp);
+        appUtils=new AppUtils(mApp);
     }
 
     @Override
@@ -152,7 +154,10 @@ import cn.hwwwwh.lexiangdaxue.selectSchoolClass.activity.selectActivity;
     protected HashMap<String,String> getUserDetails(){
         HashMap<String,String> userMap=db.getUserDetails();
         return userMap;
+    }
 
+    protected String getPhoneId(){
+        return appUtils.getPesudoUniqueID();
     }
 
     protected void logoutUniversity(){
@@ -199,13 +204,14 @@ import cn.hwwwwh.lexiangdaxue.selectSchoolClass.activity.selectActivity;
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        //清除缓存
-        Glide.get(mApp).clearMemory();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Glide.get(mApp).clearDiskCache();
-            }
-        }).start();
+//        Glide.with(mApp).pauseRequests();
+//        //清除缓存
+//        Glide.get(mApp).clearMemory();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Glide.get(mApp).clearDiskCache();
+//            }
+//        }).start();
     }
 }

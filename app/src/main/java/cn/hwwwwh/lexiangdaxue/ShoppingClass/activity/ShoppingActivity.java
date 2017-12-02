@@ -127,10 +127,6 @@ public class ShoppingActivity extends BaseActivity implements
         });
     }
 
-    @Override
-    public void loadBanner(XBanner banner, View view, int position) {
-        Glide.with(this).load(imgesUrl.get(position)).into((ImageView) view);
-    }
 
     public void initRefreshLayout(BGARefreshLayout refreshLayout){
         mRefreshLayout=(BGARefreshLayout)findViewById(R.id.rl_shopping);
@@ -230,4 +226,8 @@ public class ShoppingActivity extends BaseActivity implements
         return false;
     }
 
+    @Override
+    public void loadBanner(XBanner banner, Object model, View view, int position) {
+        Glide.with(this).load(imgesUrl.get(position)).into((ImageView) view);
+    }
 }

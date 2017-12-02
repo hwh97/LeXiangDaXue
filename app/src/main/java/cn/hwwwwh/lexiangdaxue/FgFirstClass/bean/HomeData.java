@@ -13,8 +13,26 @@ public class HomeData {
     public String Pic;
     public String Price;
     public String D_title;
-    public List<cn.hwwwwh.lexiangdaxue.FgFirstClass.bean.picData> picData;
-    public School schoolData;
+    public List<Data.ActivityPicBean> picData;
+    public List<Data.RotationPicBean> rotationPic;
+    public UserBean userBean;
+    public String uniError;
+
+    public void setRotationPic(List<Data.RotationPicBean> rotationPic) {
+        this.rotationPic = rotationPic;
+    }
+
+    public List<Data.RotationPicBean> getRotationPic() {
+        return rotationPic;
+    }
+
+    public void setUniError(String uniError) {
+        this.uniError = uniError;
+    }
+
+    public String getUniError() {
+        return uniError;
+    }
 
     public void setPrice(String price) {
         Price = price;
@@ -40,19 +58,21 @@ public class HomeData {
         return Pic;
     }
 
-    public void setPicData(List<cn.hwwwwh.lexiangdaxue.FgFirstClass.bean.picData> picData) {
+    public void setPicData(List<Data.ActivityPicBean> picData) {
         this.picData = picData;
     }
 
-    public List<cn.hwwwwh.lexiangdaxue.FgFirstClass.bean.picData> getPicData() {
+    public List<Data.ActivityPicBean> getPicData() {
         return picData;
     }
 
-    public void setSchoolData(School schoolData) {
-        this.schoolData = schoolData;
+    public void setUserBean(UserBean userBean) {
+        this.userBean = userBean;
     }
 
-    public School getSchoolData() {
-        return schoolData;
+    public UserBean getUserBean() {
+        return userBean;
     }
+
+
 }

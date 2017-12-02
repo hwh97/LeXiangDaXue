@@ -88,6 +88,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
                 imageView.setVisibility(View.INVISIBLE);
             }
             tv_summary.setText(category.getSummary());
+            tv_summary.setTag(category.getId());
         }
 
         @Override
@@ -97,7 +98,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
             fragmentTransaction.replace(R.id.fragment_container, productFragment);
             //通过bundle传值给MyFragment
             Bundle bundle = new Bundle();
-            bundle.putString(ProductFragment.TAG, tv_summary.getText().toString());
+            bundle.putString(ProductFragment.TAG, tv_summary.getTag().toString());
             bundle.putString("column",activity.getColumn());
             productFragment.setArguments(bundle);
             fragmentTransaction.commit();

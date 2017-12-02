@@ -37,7 +37,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         //空格
-        String CREATE_LOGIN_TABLE="create table "+TABLE_USER+"("+KEY_ID+" INTEGER PRIMARY KEY,"+KEY_NAME+" TEXT,"+KEY_EMAIL+" TEXT UNIQUE,"+KEY_UID+" TEXT,"+KEY_CREATED_AT+" TEXT"+")";
+        String CREATE_LOGIN_TABLE="create table "+TABLE_USER+"("+KEY_ID+" INTEGER PRIMARY KEY,"+KEY_NAME+" TEXT,"+KEY_EMAIL+" TEXT UNIQUE,"+KEY_UID+" TEXT,"+KEY_CREATED_AT+" TEXT,"+"token"+" TEXT"+")";
         db.execSQL(CREATE_LOGIN_TABLE);
         //学校数据库
         String Create_university_Table="create table university (uu_id INTEGER PRIMARY KEY ,user_uuid TEXT UNIQUE,uu_province TEXT," +
@@ -57,14 +57,14 @@ public class SQLiteHandler extends SQLiteOpenHelper {
     /**
      * storeing user details in database
      */
-    public void addUser(String name,String email,String uid,String created_at){
+    public void addUser(String name,String email,String uid,String created_at,String token){
         SQLiteDatabase db=this.getWritableDatabase();
         ContentValues values=new ContentValues();
         values.put(KEY_NAME,name);//name
         values.put(KEY_EMAIL, email); // Email
         values.put(KEY_UID, uid); // Email
         values.put(KEY_CREATED_AT, created_at); // Created At
-
+        values.put("token",token);
         long id=db.insert(TABLE_USER,null,values);
         db.close();
         Log.d(TAG, "New user inserted into sqlite: " + id);
@@ -85,6 +85,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
             user.put("email", cursor.getString(2));
             user.put("uid", cursor.getString(3));
             user.put("created_at", cursor.getString(4));
+            user.put("token", cursor.getString(5));
         }
         cursor.close();
         db.close();
@@ -132,7 +133,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         // Delete All Rows
         db.delete("university", null, null);
-        RxBus.getInstance().post("绑定所在学校");
+        RxBus.getIntanceBus().post("绑定所在学校");
         db.close();
     }
 

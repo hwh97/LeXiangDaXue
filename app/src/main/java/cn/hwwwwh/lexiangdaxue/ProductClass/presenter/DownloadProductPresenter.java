@@ -23,8 +23,8 @@ public class DownloadProductPresenter extends BasePresenter implements IDownload
     }
 
     @Override
-    public void downloadProduct(String url,String category) {
-        iDownloadProductModel.downloadProduct(url,category);
+    public void downloadProduct(String url) {
+        iDownloadProductModel.downloadProduct(url);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class DownloadProductPresenter extends BasePresenter implements IDownload
 
     @Override
     public void downloadProductFail() {
-
+        iProductView.setFailView();
     }
 
 }

@@ -3,7 +3,6 @@ package cn.hwwwwh.lexiangdaxue.FgFirstClass.fragment;
 /**
  * Created by 97481 on 2016/10/11.
  */
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -17,22 +16,24 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.stx.xhb.xbanner.XBanner;
 
+import org.reactivestreams.Subscription;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import cn.bingoogolapple.refreshlayout.BGANormalRefreshViewHolder;
 import cn.bingoogolapple.refreshlayout.BGARefreshLayout;
 import cn.bingoogolapple.refreshlayout.BGARefreshViewHolder;
+import cn.hwwwwh.lexiangdaxue.FgFirstClass.bean.Data;
 import cn.hwwwwh.lexiangdaxue.FgFirstClass.bean.HomeData;
+import cn.hwwwwh.lexiangdaxue.FgFirstClass.bean.UserBean;
+import cn.hwwwwh.lexiangdaxue.FgFirstClass.presenter.DownloadHomeDataPresenter;
+import cn.hwwwwh.lexiangdaxue.FgFirstClass.view.IHomeDataView;
 import cn.hwwwwh.lexiangdaxue.LoginActivity;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SQLiteHandler;
-import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
 import cn.hwwwwh.lexiangdaxue.ProductClass.activity.ProductActivity;
 import cn.hwwwwh.lexiangdaxue.R;
 import cn.hwwwwh.lexiangdaxue.ShoppingClass.activity.ShoppingActivity;
@@ -40,20 +41,20 @@ import cn.hwwwwh.lexiangdaxue.other.AppConfig;
 import cn.hwwwwh.lexiangdaxue.other.BaseFragment;
 import cn.hwwwwh.lexiangdaxue.other.HttpUtils;
 import cn.hwwwwh.lexiangdaxue.other.ObservableScrollView;
-import cn.hwwwwh.lexiangdaxue.other.ParserJson;
 import cn.hwwwwh.lexiangdaxue.other.RxBus;
-import cn.hwwwwh.lexiangdaxue.FgFirstClass.bean.picData;
 import cn.hwwwwh.lexiangdaxue.selectSchoolClass.activity.selectActivity;
-import cn.hwwwwh.lexiangdaxue.selectSchoolClass.bean.School;
-import rx.Subscription;
-import rx.functions.Action1;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+
 
 import static android.app.Activity.RESULT_OK;
 
 
-public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAdapter,View.OnClickListener, ObservableScrollView.ScrollViewListener,BGARefreshLayout.BGARefreshLayoutDelegate{
+public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAdapter,
+        View.OnClickListener, ObservableScrollView.ScrollViewListener,BGARefreshLayout.BGARefreshLayoutDelegate,IHomeDataView{
     private XBanner xBanner;
-    private List<String> imgesUrl;
+    private List<String> imgesUrl=new ArrayList<>();;
     private View lin_fruit;
     private View lin_lingshi;
     private View lin_breakfast;
@@ -77,7 +78,9 @@ public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAda
     private Subscription rxSbscription;
     private String url;
     private SQLiteHandler db;
-
+    private RxBus rxBus;
+    private DownloadHomeDataPresenter downloadHomeDataPresenter;
+    private List<Data.RotationPicBean> list=new ArrayList<>();
 
     @Override
     protected void initView(Bundle savedInstanceState) {
@@ -108,7 +111,8 @@ public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAda
         xBanner.setOnItemClickListener(new XBanner.OnItemClickListener() {
             @Override
             public void onItemClick(XBanner banner, int position) {
-                ShowToast("点击了第" + position + "图片");
+                if(list.size()!=0)
+                ShowToast(list.get(position).getApppic_linkurl());
             }
         });
         lin_fruit.setOnClickListener(this);
@@ -125,14 +129,6 @@ public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAda
 
     @Override
     protected void processLogic(Bundle savedInstanceState) {
-        //xbanner
-        imgesUrl = new ArrayList<>();
-        //使用接口控制轮播图
-        imgesUrl.add("http://imageprocess.yitos.net/images/public/20160906/1291473163104906.jpg");
-        imgesUrl.add("http://imageprocess.yitos.net/images/public/20160910/99381473502384338.jpg");
-        imgesUrl.add("http://imageprocess.yitos.net/images/public/20160910/77991473496077677.jpg");
-        xBanner.setData(imgesUrl, null);
-        xBanner.setmAdapter(this);
         localicon_icon.setAlpha(0);
         ViewGroup.MarginLayoutParams margin2 = new ViewGroup.MarginLayoutParams(title_Main_layout2.getLayoutParams());
         margin2.setMargins(margin2.leftMargin, 8, margin2.rightMargin, margin2.bottomMargin);
@@ -148,35 +144,51 @@ public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAda
             String uni=getUniDetails().get("uu_name");
             initSchool(uni);
         }
-
-        rxSbscription = RxBus.getInstance().toObserverable(String.class)
-                .subscribe(new Action1<String>() {
-                    @Override
-                    public void call(String s) {
-                        if(!s.isEmpty()){
-                            initSchool(s);
-                        }
-                    }
-
-                });
+        downloadHomeDataPresenter=new DownloadHomeDataPresenter(this);
+        initRxBus();
         initListeners();
         initRefreshLayout();
+        xBanner.setmAdapter(this);
+    }
+
+
+    private void initRxBus() {
+        rxBus = RxBus.getIntanceBus();
+        registerRxBus(String.class, new Consumer<String>() {
+            @Override
+            public void accept(@NonNull String s) throws Exception {
+                if(!s.isEmpty()){
+                    initSchool(s);
+                }
+            }
+        });
+    }
+
+    //注册
+    public <T> void registerRxBus(Class<T> eventType, Consumer<T> action) {
+        Disposable disposable = rxBus.doSubscribe(eventType, action, new Consumer<Throwable>() {
+            @Override
+            public void accept(@NonNull Throwable throwable) throws Exception {
+                Log.e("NewsMainPresenter", throwable.toString());
+            }
+        });
+        rxBus.addSubscription(this,disposable);
     }
 
     @Override
     protected void lazyLoad() {
-        if (isLoggedIn()){
-            url= AppConfig.urlHomeApi+" && uid="+getUserDetails().get("uid");
-        }else{
-            url= AppConfig.urlHomeApi;
+        if (!isLoad) {
+            isLoad = true;
+            if (isLoggedIn()) {
+                //url= AppConfig.urlHomeApi+" && uid="+getUserDetails().get("uid");
+            } else {
+                // url= AppConfig.urlHomeApi;
+            }
+            url = AppConfig.urlHomeApi;
+            downloadHomeDataPresenter.downloadData(url, AppConfig.urlHomeUvApi, getUserDetails().get("token"), getPhoneId());
         }
-        new DownloadHomeData().execute(url);
     }
 
-    @Override
-    public void loadBanner(XBanner banner, View view, int position) {
-        Glide.with(this).load(imgesUrl.get(position)).into((ImageView) view);
-    }
 
     @Override
     public void onResume() {
@@ -186,9 +198,7 @@ public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAda
 
     @Override
     public void onDestroy() {
-        if (!rxSbscription.isUnsubscribed()){
-            rxSbscription.unsubscribe();
-        }
+        rxBus.unSubscribe(this);
         super.onDestroy();
     }
 
@@ -248,10 +258,6 @@ public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAda
         }
     }
 
-
-
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -286,6 +292,7 @@ public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAda
 
        height=title_Main_layout2.getLayoutParams().height;
     }
+
     /**
      * 滑动监听
      * @param scrollView
@@ -295,8 +302,7 @@ public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAda
      * @param oldy
      */
     @Override
-    public void onScrollChanged(ObservableScrollView scrollView, int x, int y,
-                                int oldx, int oldy) {
+    public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
         // TODO Auto-generated method stub
         if (y <= height) {  //设置标题的背景颜色
             title_Main_layout.setBackgroundColor(Color.argb((int) 0, 144, 151, 166));
@@ -346,10 +352,9 @@ public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAda
 
     }
 
-
-    public void addPopActivity(List<picData> list){
+    public void addPopActivity(List<Data.ActivityPicBean> list){
         PopActivity.removeAllViews();
-        for(final picData data:list){
+        for(final Data.ActivityPicBean data:list){
             ImageView imageView = new ImageView(mApp);
             imageView.setPadding(0,5,0,5);
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
@@ -368,6 +373,17 @@ public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAda
             Glide.with(mApp).load(data.getApppic_url()).placeholder(R.drawable.loadpic).into(imageView);
             PopActivity.addView(imageView);
         }
+    }
+
+    public void addRotationPic(List<Data.RotationPicBean> list){
+        this.list=list;
+        //xbanner
+        imgesUrl.clear();
+        //使用接口控制轮播图
+        for(Data.RotationPicBean bean :list){
+            imgesUrl.add(bean.getApppic_url());
+        }
+        xBanner.setData(imgesUrl, null);
     }
 
     public void initRefreshLayout(){
@@ -395,14 +411,6 @@ public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAda
         // 可选配置  -------------END
     }
 
-    /**
-     * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
-     */
-    public static int dip2px(Context context, float dpValue) {
-        final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (dpValue * scale + 0.5f);
-    }
-
     @Override
     public void onBGARefreshLayoutBeginRefreshing(BGARefreshLayout refreshLayout) {
         // 在这里加载最新数据
@@ -423,9 +431,9 @@ public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAda
                 protected void onPostExecute(Void aVoid) {
                     // 加载完毕后在 UI 线程结束下拉刷新
                     if (isLoggedIn()){
-                        url= AppConfig.urlHomeApi+" && uid="+db.getUserDetails().get("uid");
+                        //url= AppConfig.urlHomeApi+" && uid="+db.getUserDetails().get("uid");
                     }
-                    new DownloadHomeData().execute(url);
+                    downloadHomeDataPresenter.downloadData(AppConfig.urlHomeApi,AppConfig.urlHomeUvApi,getUserDetails().get("token"),getPhoneId());
                     mRefreshLayout.endRefreshing();
                 }
             }.execute();
@@ -451,47 +459,41 @@ public class GuideOneFragment extends BaseFragment implements XBanner.XBannerAda
         mRefreshLayout.beginLoadingMore();
     }
 
-    class DownloadHomeData extends  AsyncTask<String, Void, List<HomeData>>{
-
-        @Override
-        protected List<HomeData> doInBackground(String... params) {
-            String url=params[0];
-            List<HomeData> list=new ArrayList<HomeData>();
-            if(HttpUtils.isNetConn(mApp)){
-                byte[] b=HttpUtils.downloadFromNet(url);
-                String jsonString=new String(b);
-                list= ParserJson.getHomeData(jsonString);
-                Log.d("lexiantest",jsonString);
-            }
-            return list;
-        }
-
-        @Override
-        protected void onPostExecute(List<HomeData> homeDatas) {
-            super.onPostExecute(homeDatas);
-            if(homeDatas!=null && homeDatas.size()!=0){
-                //更新UI
-                HomeData homeData=homeDatas.get(0);
-                Glide.with(mApp).load(homeData.getPic()).placeholder(R.drawable.loadpic).into(sy_quan_img);
-                sy_quan_text.setText("券后价"+homeData.getPrice()+"元");
-                home_quan_text.setText(homeData.getD_title());
-                addPopActivity(homeData.getPicData());
-                if(homeData.getSchoolData()!=null){
-                    School school=homeData.getSchoolData();
-                    if(school.getName().equals(getUniDetails().get("uu_name"))) {
-                        initSchool(homeData.getSchoolData().getName());
-                    }else{
-                        db.updateUniversity(school.getUid(),school.getProvince(),school.getCity(),school.getName(),school.getUniversity_id()+"");
-                        initSchool(homeData.getSchoolData().getName());
-                    }
-                }else{
-                    db.deleteUniversity();
-                    initSchool("绑定所在学校");
-                }
+    @Override
+    public void setView(HomeData homeData) {
+        //更新UI
+        Glide.with(mApp).load(homeData.getPic()).placeholder(R.drawable.loadpic).into(sy_quan_img);
+        sy_quan_text.setText("券后价"+homeData.getPrice()+"元");
+        home_quan_text.setText(homeData.getD_title());
+        addPopActivity(homeData.getPicData());
+        addRotationPic(homeData.getRotationPic());
+        if(homeData.getUserBean()!=null){
+            UserBean school=homeData.getUserBean();
+            if(school.getUni().getUu_name().equals(getUniDetails().get("uu_name"))) {
+                initSchool(homeData.getUserBean().getUni().getUu_name());
             }else{
-                Toast.makeText(mApp, "网络不可用", Toast.LENGTH_SHORT).show();
+                db.updateUniversity(school.getUni().getUser_uuid(),school.getUni().getUu_province(),school.getUni().getUu_city(),school.getUni().getUu_name(),school.getUni().getUniversity_id()+"");
+                initSchool(homeData.getUserBean().getUni().getUu_name());
             }
+        }else{
+            db.deleteUniversity();
+            initSchool("绑定所在学校");
         }
+    }
+
+    @Override
+    public void setFailView() {
+        ShowToast("网络出错");
+    }
+
+    @Override
+    public void setUniFailView(String error) {
+        ShowToast(error);
+    }
+
+    @Override
+    public void loadBanner(XBanner banner, Object model, View view, int position) {
+        Glide.with(this).load(imgesUrl.get(position)).into((ImageView) view);
     }
 
 }

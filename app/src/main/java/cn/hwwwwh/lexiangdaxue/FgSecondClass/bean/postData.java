@@ -4,6 +4,7 @@ import java.util.List;
 
 /**
  * Created by 97481 on 2017/3/7/ 0007.
+ * 弃用
  */
 
 public class postData {
@@ -21,8 +22,6 @@ public class postData {
     public String comment3;
     public String Id;
     public String pictureUrl1;
-    public String picture1Height;
-    public String picture1Width;
     public String postUuid;
     public boolean isZan=false;
     public List<String> PicsData;
@@ -139,22 +138,6 @@ public class postData {
 
     public void setPictureUrl1(String pictureUrl1) {
         this.pictureUrl1 = pictureUrl1;
-    }
-
-    public String getPicture1Height() {
-        return picture1Height;
-    }
-
-    public void setPicture1Height(String picture1Height) {
-        this.picture1Height = picture1Height;
-    }
-
-    public String getPicture1Width() {
-        return picture1Width;
-    }
-
-    public void setPicture1Width(String picture1Width) {
-        this.picture1Width = picture1Width;
     }
 
     public String getPostUuid() {

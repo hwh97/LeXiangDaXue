@@ -128,7 +128,7 @@ public class DownloadProduct extends AsyncTask<String,Void,List<Product>> {
             byte[] b=HttpUtils.downloadFromNet(params[0]);
             jsonString=new String(b);
             Log.d("Tag",jsonString);
-            list= ParserJson.parserJsonToProduct(jsonString,categoryName);
+            list= ParserJson.parserJsonToProduct(jsonString);
         }
         return list;
     }

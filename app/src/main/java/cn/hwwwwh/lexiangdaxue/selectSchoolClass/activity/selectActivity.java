@@ -221,7 +221,7 @@ public class selectActivity extends BaseActivity {
                         setResult(RESULT_OK,intent);
                         School s=new School();
                         s.setName(name);s.setUniversity_id(schoolID);s.setProvince(province);s.setCity(city);
-                        RxBus.getInstance().post(s);
+                        RxBus.getIntanceBus().post(s);
                         finish();
                     } else {
                         String error_info=null;

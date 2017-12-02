@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <cn.hwwwwh.lexiangdaxue.other.XCRoundImageView
+            android:id="@+id/headPic"
             android:src="@drawable/headpic"
             android:layout_marginLeft="10dp"
             android:layout_width="40dp"

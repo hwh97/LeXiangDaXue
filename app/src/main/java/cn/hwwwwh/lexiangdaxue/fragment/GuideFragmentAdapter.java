@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import cn.hwwwwh.lexiangdaxue.FgFirstClass.fragment.GuideOneFragment;
 import cn.hwwwwh.lexiangdaxue.FgFourthClass.fragment.GuideFourthFragment;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.fragment.GuideTwoFragment;
+import cn.hwwwwh.lexiangdaxue.FgThirdClass.fragment.GuideThirdFragment;
 
 public class GuideFragmentAdapter  extends FragmentPagerAdapter {
     private Fragment[] fragments = new Fragment[] { new GuideOneFragment(),

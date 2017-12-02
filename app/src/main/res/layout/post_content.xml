@@ -19,6 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp">
             <cn.hwwwwh.lexiangdaxue.other.XCRoundImageView
+                android:id="@+id/headPic"
                 android:layout_marginStart="10dp"
                 android:layout_width="50dp"
                 android:layout_height="50dp"

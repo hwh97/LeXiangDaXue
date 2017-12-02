@@ -63,10 +63,10 @@ public class DownloadPostData extends AsyncTask<String,Void,List<postData>> {
     protected void onPostExecute(List<postData> postDatas) {
         super.onPostExecute(postDatas);
         if(postDatas != null && postDatas.size()!=0 && page ==1){
-            adapter.setData(postDatas);
+           // adapter.setData(postDatas);
             recyclerView.setAdapter(adapter);
         }else if(postDatas != null && postDatas.size()!=0 && page>1){
-            adapter.addMoreData(postDatas);
+            //adapter.addMoreData(postDatas);
         } else{
             Toast.makeText(context, "没有更多数据了", Toast.LENGTH_SHORT).show();
         }

@@ -15,6 +15,7 @@ import java.util.List;
 
 import cn.bingoogolapple.refreshlayout.BGARefreshLayout;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.adapter.postAdapter;
+import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.PostsBean;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.postData;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.presenter.DownloadPostPresenter;
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.view.IPostView;
@@ -24,6 +25,7 @@ import cn.hwwwwh.lexiangdaxue.MainActivity;
 import cn.hwwwwh.lexiangdaxue.R;
 import cn.hwwwwh.lexiangdaxue.ShoppingClass.other.RecyclerViewScrollDetector;
 import cn.hwwwwh.lexiangdaxue.ShoppingClass.other.SpacesItemDecoration;
+import cn.hwwwwh.lexiangdaxue.other.AppConfig;
 import cn.hwwwwh.lexiangdaxue.other.BaseFragment;
 import cn.hwwwwh.lexiangdaxue.other.HttpUtils;
 
@@ -134,7 +136,7 @@ public class FgSecondPageFragment extends BaseFragment implements BGARefreshLayo
     protected void lazyLoad() {
         if(!isLazyLoad){
             isLazyLoad=true;
-            downloadPostPresenter.download(handleUrl("http://cs.hwwwwh.cn/admin/postsApi.php?page=1"+"&method="+method));
+            downloadPostPresenter.download(AppConfig.urlPostsApi,page,method,getUserDetails().get("token"),getPhoneId());
             //new DownloadPostData(mApp, recyclerView, adapter,page).execute("http://cs.hwwwwh.cn/admin/postsApi.php?page=1"+"&method="+method);
         }
     }
@@ -181,7 +183,7 @@ public class FgSecondPageFragment extends BaseFragment implements BGARefreshLayo
                 protected void onPostExecute(Void aVoid) {
                     page=1;
                     // 加载完毕后在 UI 线程结束下拉刷新
-                    downloadPostPresenter.download(handleUrl("http://cs.hwwwwh.cn/admin/postsApi.php?page=1"+"&method="+method));
+                    downloadPostPresenter.download(AppConfig.urlPostsApi,page,method,getUserDetails().get("token"),getPhoneId());
                     // new DownloadPostData(mApp, recyclerView, adapter,page).execute("http://cs.hwwwwh.cn/admin/postsApi.php?page=1"+"&method="+method);
                     ((GuideTwoFragment)((MainActivity)getActivity()).adapter.getItem(1)).endRefreshing();
                 }
@@ -214,8 +216,7 @@ public class FgSecondPageFragment extends BaseFragment implements BGARefreshLayo
                 @Override
                 protected void onPostExecute(Void aVoid) {
                     page=page+1;
-                    String url="http://cs.hwwwwh.cn/admin/postsApi.php?page="+page+"&method="+method;
-                    downloadPostPresenter.download(handleUrl(url));
+                    downloadPostPresenter.download(AppConfig.urlPostsApi,page,method,getUserDetails().get("token"),getPhoneId());
                     //new DownloadPostData(mApp,recyclerView,adapter,page).execute(url);
                     // 加载完毕后在 UI 线程结束下拉刷新
                     ((GuideTwoFragment)((MainActivity)getActivity()).adapter.getItem(1)).endLoadingMore();
@@ -231,7 +232,7 @@ public class FgSecondPageFragment extends BaseFragment implements BGARefreshLayo
 
 
     @Override
-    public void setView(List<postData> postDatas) {
+    public void setView(List<PostsBean.PostsDataBean> postDatas) {
         if(postDatas != null && postDatas.size()!=0 && page ==1){
             adapter.setData(postDatas);
             recyclerView.setAdapter(adapter);
@@ -243,8 +244,8 @@ public class FgSecondPageFragment extends BaseFragment implements BGARefreshLayo
     }
 
     @Override
-    public void downloadFail() {
-        ShowToast("没有更多数据了");
+    public void downloadFail(String msg) {
+        ShowToast(msg);
     }
 
 }

@@ -3,6 +3,8 @@
     package="cn.hwwwwh.lexiangdaxue">
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -29,8 +31,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".RegisterActivity" />
+        <activity android:name=".LoginActivity"  android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".RegisterActivity" android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ProductClass.activity.ProductActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -70,6 +72,14 @@
             android:name=".FgFourthClass.Activity.userinfoActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".FgThirdClass.activity.OrderDetailActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:theme="@style/AppTheme.NoActionBar"
+            android:name=".FgFourthClass.Activity.AddressActivity"/>
+
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -80,12 +90,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/filepaths" />
         </provider>
-
-        <activity
-            android:theme="@style/AppTheme.NoActionBar"
-            android:name=".FgFourthClass.Activity.AddressActivity">
-
-        </activity>
     </application>
 
 </manifest>

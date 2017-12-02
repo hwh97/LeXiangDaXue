@@ -21,6 +21,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.bumptech.glide.Glide;
 import com.ldoublem.thumbUplib.ThumbUpView;
 import com.ytying.emoji.StringUtil;
 
@@ -29,8 +30,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 
 import cn.hwwwwh.lexiangdaxue.FgSecondClass.bean.ReplyBean;
 import cn.hwwwwh.lexiangdaxue.LoginActivity;
@@ -40,12 +43,13 @@ import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
 import cn.hwwwwh.lexiangdaxue.R;
 import cn.hwwwwh.lexiangdaxue.other.AppConfig;
 import cn.hwwwwh.lexiangdaxue.other.BaseRecyclerAdapter;
+import cn.hwwwwh.lexiangdaxue.other.XCRoundImageView;
 
 /**
  * Created by 97481 on 2017/6/16/ 0016.
  */
 
-public class DeatailReplyAdapter extends BaseRecyclerAdapter<ReplyBean> {
+public class DeatailReplyAdapter extends BaseRecyclerAdapter<ReplyBean.ReplyDataBean> {
 
     private Context context;
     private ProgressDialog pDialog;
@@ -71,18 +75,35 @@ public class DeatailReplyAdapter extends BaseRecyclerAdapter<ReplyBean> {
     public List<String> popReply=new ArrayList<>();
 
     @Override
-    public void addDatas(ArrayList<ReplyBean> datas) {
-        for(int i=0;i<datas.size();i++){
-            ReplyBean replyBean=datas.get(i);
-            if(replyBean.ispop){
+    public void addDatas(List<ReplyBean.ReplyDataBean> datas) {
+        Iterator<ReplyBean.ReplyDataBean> sListIterator = datas.iterator();
+        while(sListIterator.hasNext()){
+            ReplyBean.ReplyDataBean replyBean = sListIterator.next();
+            if(replyBean.getIspop().equals("1")){
                 popReply.add(replyBean.getReply_uuid());
             }
-            if(!replyBean.ispop&& popReply.contains(replyBean.getReply_uuid())){
-                datas.remove(replyBean);
-                Log.d("testlexiangdaxue","remove"+replyBean.getReply_content());
+            // Log.d("testlexiangdaxue",replyBean.getReply_uuid());
+            if(!replyBean.getIspop().equals("1")&& popReply.contains(replyBean.getReply_uuid())){
+                sListIterator.remove();
+                //Log.d("testlexiangdaxue","remove"+replyBean.getReply_content());
             }
+
         }
-        Log.d("testlexiangdaxue",popReply.size()+" ");
+        //直接用arraylist的remove 会出现下标不统一 ，需要用 Iterator<ReplyBean> sListIterator = datas.iterator();解决。！！
+
+//        for(int i=0;i<datas.size();i++){
+//            ReplyBean replyBean=datas.get(i);
+//            if(replyBean.ispop){
+//                popReply.add(replyBean.getReply_uuid());
+//            }
+//
+//            // Log.d("testlexiangdaxue",replyBean.getReply_uuid());
+//            if(!replyBean.ispop&& popReply.contains(replyBean.getReply_uuid())){
+//                datas.remove(replyBean);
+//                //Log.d("testlexiangdaxue","remove"+replyBean.getReply_content());
+//            }
+//        }
+//        Log.d("testlexiangdaxue",datas.size()+"  ");
         super.addDatas(datas);
     }
 
@@ -93,7 +114,7 @@ public class DeatailReplyAdapter extends BaseRecyclerAdapter<ReplyBean> {
     }
 
     @Override
-    public void onBind(RecyclerView.ViewHolder viewHolder, int RealPosition, ReplyBean data) {
+    public void onBind(RecyclerView.ViewHolder viewHolder, int RealPosition, ReplyBean.ReplyDataBean data) {
 
         if(viewHolder instanceof MyHolder) {
             ((MyHolder)viewHolder).bindData(data,RealPosition);
@@ -119,6 +140,7 @@ public class DeatailReplyAdapter extends BaseRecyclerAdapter<ReplyBean> {
         public TextView post_createtime;
         public TextView good_count;
         public ThumbUpView zan;
+        private XCRoundImageView headPic;
 
 
         public MyHolder(View itemView) {
@@ -128,10 +150,11 @@ public class DeatailReplyAdapter extends BaseRecyclerAdapter<ReplyBean> {
             post_admin=(TextView) itemView.findViewById(R.id.post_admin);
             post_createtime=(TextView) itemView.findViewById(R.id.post_createtime);
             zan=(ThumbUpView)itemView.findViewById(R.id.zan);
+            headPic=(XCRoundImageView)itemView.findViewById(R.id.headPic);
         }
 
-        public void bindData(final ReplyBean data, final int pos){
-            if (data.Reply_isReplys){
+        public void bindData(final ReplyBean.ReplyDataBean data, final int pos){
+            if (data.getReply_isposts()==0){
                 String replyInfo="回复 "+data.getReply_replyadmin()+"：";
                 String replyContent= data.getReply_content();
                 SpannableString styledText = new SpannableString(replyInfo+replyContent);
@@ -154,7 +177,7 @@ public class DeatailReplyAdapter extends BaseRecyclerAdapter<ReplyBean> {
                 public void like(boolean like) {
                     if(like){
                         if(session.isLoggedIn()) {
-                            data.setZan(true);
+                            data.setReply_isZan(1);
                             int count = (Integer.parseInt(good_count.getText().toString()) + 1);
                             good_count.setText(count + "");
                             data.setReply_goodcount(count);
@@ -165,7 +188,7 @@ public class DeatailReplyAdapter extends BaseRecyclerAdapter<ReplyBean> {
                         }
                     }else{
                         if(session.isLoggedIn()) {
-                            data.setZan(false);
+                            data.setReply_isZan(0);
                             int count=(Integer.parseInt(good_count.getText().toString())-1);
                             good_count.setText(count+"");
                             data.setReply_goodcount(count);
@@ -178,12 +201,15 @@ public class DeatailReplyAdapter extends BaseRecyclerAdapter<ReplyBean> {
                     }
                 }
             });
-            if (data.isZan){
+            if (data.getReply_isZan()==1){
                 zan.setLike();
             }else{
                 zan.setUnlike();
             }
 
+            if(data.getHeadPic()!=null){
+                Glide.with(context).load(data.getHeadPic()).asBitmap().into(headPic);
+            }
         }
 
         public void sendPost(final HashMap<String, String> hashMap, final String post_uuid, final String type){

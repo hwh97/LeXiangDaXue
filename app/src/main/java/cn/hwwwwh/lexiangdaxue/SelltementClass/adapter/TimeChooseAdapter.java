@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -21,6 +22,7 @@ import cn.hwwwwh.lexiangdaxue.SelltementClass.activity.SettlementActivity;
  * Created by 97481 on 2016/12/4.
  */
 public class TimeChooseAdapter extends RecyclerView.Adapter<TimeChooseAdapter.ViewHolder>  {
+
     private List<String> list;
     private Context context;
     private LayoutInflater inflater;
@@ -63,11 +65,14 @@ public class TimeChooseAdapter extends RecyclerView.Adapter<TimeChooseAdapter.Vi
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView time_Text;
         private ImageView Check;
+        private RelativeLayout time_rel;
+
         public ViewHolder(View itemView) {
             super(itemView);
             time_Text = (TextView) itemView.findViewById(R.id.time_Text);
             Check=(ImageView)itemView.findViewById(R.id.time_img);
-            time_Text.setOnClickListener(this);
+            time_rel=(RelativeLayout) itemView.findViewById(R.id.time_rel);
+            time_rel.setOnClickListener(this);
         }
 
         public void bindData(String a){
@@ -91,6 +96,7 @@ public class TimeChooseAdapter extends RecyclerView.Adapter<TimeChooseAdapter.Vi
             SettlementActivity settlementActivity= (SettlementActivity) activity;
             settlementActivity.RefreshUi();
         }
+
         public void  onback(){
             new Thread(){
                 public void run(){

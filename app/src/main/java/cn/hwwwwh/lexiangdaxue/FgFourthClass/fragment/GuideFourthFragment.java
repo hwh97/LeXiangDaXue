@@ -22,6 +22,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.BitmapTypeRequest;
+import com.bumptech.glide.DrawableRequestBuilder;
+import com.bumptech.glide.DrawableTypeRequest;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -45,9 +48,11 @@ import cn.hwwwwh.lexiangdaxue.other.BlurBitmapUtil;
 import cn.hwwwwh.lexiangdaxue.other.RxBus;
 import cn.hwwwwh.lexiangdaxue.other.XCRoundImageView;
 import cn.hwwwwh.lexiangdaxue.selectSchoolClass.activity.selectActivity;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import jp.wasabeef.glide.transformations.BlurTransformation;
-import rx.Subscription;
-import rx.functions.Action1;
+
 
 public class GuideFourthFragment extends BaseFragment implements View.OnClickListener,IUserView {
     private ImageView iv;
@@ -60,19 +65,11 @@ public class GuideFourthFragment extends BaseFragment implements View.OnClickLis
     private TextView user1;
     private LinearLayout fab2;
     private LinearLayout fab;
-    private Subscription rxSbscription;
+    private RxBus rxBus;
     private LinearLayout address_view;
     private DownloadUserPresenter downloadUserPresenter;
     private Button logout_btn;
-
-
-    private CollapsingToolbarLayoutState state;
-
-    private enum CollapsingToolbarLayoutState {
-        EXPANDED,
-        COLLAPSED,
-        INTERNEDIATE
-    }
+    private boolean isLoad=false;
 
 
     @Override
@@ -100,10 +97,12 @@ public class GuideFourthFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void onResume() {
         super.onResume();
-        if(isLoggedIn()){
-            downloadUserPresenter.download("http://cs.hwwwwh.cn/admin/userinfo.php?unique_id="+getUserDetails().get("uid"));
-        }else{
-            setFailView();
+        if(isLoad) {
+            if (isLoggedIn()) {
+                downloadUserPresenter.download("http://cs.hwwwwh.cn/admin/userinfo.php?unique_id=" + getUserDetails().get("uid"));
+            } else {
+                setFailView();
+            }
         }
     }
 
@@ -142,51 +141,61 @@ public class GuideFourthFragment extends BaseFragment implements View.OnClickLis
                 } else {
                     //保留一位小数
                     float alpha = 1.0f * verticalOffset / scrollRangle;
-                    Log.d("lexiantest",1+(1.0f * verticalOffset / scrollRangle) +"");
+                    Log.d("lexiantest", 1 + (1.0f * verticalOffset / scrollRangle) + "");
                     //ShowToast(1-alpha+"");
-                    head.setAlpha(1+alpha);
-                    user.setAlpha(1+alpha);
-                    if((1+alpha)<0.3) {
+                    head.setAlpha(1 + alpha);
+                    user.setAlpha(1 + alpha);
+                    if ((1 + alpha) < 0.3) {
                         head.setAlpha(0f);
                         user.setAlpha(0f);
                         head1.setAlpha(-1f * alpha);
                         user1.setAlpha(-1f * alpha);
                     }
-                    if((1+alpha)>0.4){
+                    if ((1 + alpha) > 0.4) {
                         head1.setAlpha(0f);
                         user1.setAlpha(0f);
                     }
                 }
             }
         });
-        downloadUserPresenter=new DownloadUserPresenter(this);
-        if(isLoggedIn()){
-            downloadUserPresenter.download("http://cs.hwwwwh.cn/admin/userinfo.php?unique_id="+getUserDetails().get("uid"));
-        }else{
-            setFailView();
-        }
-        rxSbscription = RxBus.getInstance().toObserverable(userBean.class)
-                .subscribe(new Action1<userBean>() {
-                    @Override
-                    public void call(userBean userBean) {
-                        if(userBean.getHead_url()!=null) {
-                            Glide.with(getActivity()).load(userBean.getHead_url()).asBitmap().into(head);
-                            Glide.with(getActivity()).load(userBean.getHead_url()).asBitmap().into(head1);
-                            Glide.with(getActivity()).load(userBean.getHead_url()).bitmapTransform(new BlurTransformation(getContext(), 23, 2)).into(iv);
-                        }else if(userBean.getName()!=null){
-                            user1.setText(userBean.getName());
-                            user.setText(userBean.getName());
-                        }
-                    }
+        initRxBus();
+    }
 
-                });
+    private void initRxBus() {
+        rxBus = RxBus.getIntanceBus();
+        registerRxBus(userBean.class, new Consumer<userBean>() {
+            @Override
+            public void accept(@NonNull userBean userBean) throws Exception {
+                if(userBean.getHead_url()!=null) {
+                    DrawableTypeRequest<String> builder=  Glide.with(getActivity()).load(userBean.getHead_url());
+                    builder.asBitmap().into(head);
+                    builder.asBitmap().into(head1);
+                    builder.bitmapTransform(new BlurTransformation(getContext(), 23, 2)).into(iv);
+                }else if(userBean.getName()!=null){
+                    user1.setText(userBean.getName());
+                    user.setText(userBean.getName());
+                }
+            }
+        });
+    }
+
+    //注册
+    public <T> void registerRxBus(Class<T> eventType, Consumer<T> action) {
+        Disposable disposable = rxBus.doSubscribe(eventType, action, new Consumer<Throwable>() {
+            @Override
+            public void accept(@NonNull Throwable throwable) throws Exception {
+                Log.e("NewsMainPresenter", throwable.toString());
+            }
+        });
+        rxBus.addSubscription(this,disposable);
     }
 
     @Override
     public void setUserView(ArrayList<userBean> list) {
-        Glide.with(getActivity()).load(list.get(0).getHead_url()).asBitmap().into(head);
-        Glide.with(getActivity()).load(list.get(0).getHead_url()).asBitmap().into(head1);
-        Glide.with(getActivity()).load(list.get(0).getHead_url()).bitmapTransform(new BlurTransformation(getContext(), 23, 2)).into(iv);
+        DrawableTypeRequest<String> builder=  Glide.with(getActivity()).load(list.get(0).getHead_url());
+        builder.asBitmap().into(head);
+        builder.asBitmap().into(head1);
+        builder.bitmapTransform(new BlurTransformation(getContext(), 23, 2)).into(iv);
         user1.setText(list.get(0).getName());
         user.setText(list.get(0).getName());
     }
@@ -202,16 +211,22 @@ public class GuideFourthFragment extends BaseFragment implements View.OnClickLis
 
     @Override
     protected void lazyLoad() {
-
+        if (!isLoad) {
+            isLoad = true;
+            downloadUserPresenter = new DownloadUserPresenter(this);
+            if (isLoggedIn()) {
+                downloadUserPresenter.download("http://cs.hwwwwh.cn/admin/userinfo.php?unique_id=" + getUserDetails().get("uid"));
+            } else {
+                setFailView();
+            }
+        }
     }
 
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (!rxSbscription.isUnsubscribed()){
-            rxSbscription.unsubscribe();
-        }
+        rxBus.unSubscribe(this);
     }
 
     @Override
@@ -250,5 +265,8 @@ public class GuideFourthFragment extends BaseFragment implements View.OnClickLis
     public void logout() {
         super.logout();
         setFailView();
+
     }
+
+
 }

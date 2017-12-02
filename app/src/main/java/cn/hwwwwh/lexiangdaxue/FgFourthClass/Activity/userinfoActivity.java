@@ -63,6 +63,8 @@ import cn.hwwwwh.lexiangdaxue.other.AppConfig;
 import cn.hwwwwh.lexiangdaxue.other.BaseActivity;
 import cn.hwwwwh.lexiangdaxue.other.RxBus;
 import cn.hwwwwh.lexiangdaxue.other.XCRoundImageView;
+import id.zelory.compressor.Compressor;
+
 
 public class userinfoActivity extends BaseActivity implements IUserView {
 
@@ -175,7 +177,7 @@ public class userinfoActivity extends BaseActivity implements IUserView {
         bindEmail.setText(list.get(0).getEmail());
         nickName.setText(list.get(0).getName());
         userAccount.setText(list.get(0).getEmail());
-        Glide.with(this).load(list.get(0).getHead_url()).asBitmap().placeholder(R.drawable.headpic).into(userHeaderPic);
+        Glide.with(getApplicationContext()).load(list.get(0).getHead_url()).asBitmap().placeholder(R.drawable.headpic).into(userHeaderPic);
     }
 
     @Override
@@ -349,9 +351,42 @@ public class userinfoActivity extends BaseActivity implements IUserView {
                     Bitmap bitmap;
                     try {
                         bitmap = BitmapFactory.decodeFile(cropFile.getPath());
-                        //userHeaderPic.setImageBitmap(bitmap);
-                        String headPic=bitmapToString(bitmap);
+                        Bitmap compressedImage = new Compressor(this)
+                                .setMaxWidth(130)
+                                .setMaxHeight(130)
+                                .setQuality(50)
+                                .setCompressFormat(Bitmap.CompressFormat.WEBP)
+                                .setDestinationDirectoryPath(Environment.getExternalStoragePublicDirectory(
+                                        Environment.DIRECTORY_PICTURES).getAbsolutePath())
+                                .compressToBitmap(cropFile);
+
+                        String headPic=bitmapToString(compressedImage);
                         sendPost(headPic,"0");
+                        /*Luban.with(this)
+                                .load(cropFile.getPath())// 传人要压缩的图片列表
+                                .ignoreBy(100)                                  // 忽略不压缩图片的大小
+                                .setTargetDir(cropFile.getParentFile().getPath())                        // 设置压缩后文件存储位置
+                                .setCompressListener(new OnCompressListener() { //设置回调
+                                    @Override
+                                    public void onStart() {
+                                        // TODO 压缩开始前调用，可以在方法内启动 loading UI
+                                    }
+
+                                    @Override
+                                    public void onSuccess(File file) {
+                                        // TODO 压缩成功后调用，返回压缩后的图片文件
+                                        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                                        String headPic=bitmapToString(bitmap);
+                                        sendPost(headPic,"0");
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        // TODO 当压缩过程出现问题时调用
+                                        Log.d("Throwable",e.getMessage());
+                                    }
+                                }).launch();    //启动压缩*/
+                        //userHeaderPic.setImageBitmap(bitmap);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -375,11 +410,11 @@ public class userinfoActivity extends BaseActivity implements IUserView {
 
     //把bitmap转换成String
     public static String bitmapToString(Bitmap bm) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         //1.5M的压缩后在100Kb以内，测试得值,压缩后的大小=94486字节,压缩后的大小=74473字节
         //这里的JPEG 如果换成PNG，那么压缩的就有600kB这样
-        bm.compress(Bitmap.CompressFormat.JPEG, 40, baos);
+        bm.compress(Bitmap.CompressFormat.JPEG, 90, baos);
         byte[] b = baos.toByteArray();
         Log.d("d", "压缩后的大小=" + b.length);
         return Base64.encodeToString(b, Base64.DEFAULT);
@@ -419,7 +454,7 @@ public class userinfoActivity extends BaseActivity implements IUserView {
                         JSONObject user = jObj.getJSONObject("user");
                         userBean.setHead_url(user.getString("headUrl"));
                         Glide.with(userinfoActivity.this).load(user.getString("headUrl")).asBitmap().into(userHeaderPic);
-                        RxBus.getInstance().post(userBean);
+                        RxBus.getIntanceBus().post(userBean);
                     } else {
                         String error_info=null;
                         if(jObj.has("error_msg")) {
@@ -477,7 +512,7 @@ public class userinfoActivity extends BaseActivity implements IUserView {
                         userBean.setName(newName);
                         nickName.setText(newName);
                         db.updateUserNN(newName,uid);
-                        RxBus.getInstance().post(userBean);
+                        RxBus.getIntanceBus().post(userBean);
                     } else {
                         String error_info=null;
                         if(jObj.has("error_msg")) {
@@ -566,9 +601,6 @@ public class userinfoActivity extends BaseActivity implements IUserView {
     }
 
 
-
-
-
     /**
      * 裁剪
      *
@@ -636,7 +668,6 @@ public class userinfoActivity extends BaseActivity implements IUserView {
         }
     }
 
-
     private void showMessageOKCancel() {
         new AlertDialog.Builder(this)
                 .setMessage("必须授予储存空间的权限！")
@@ -650,4 +681,9 @@ public class userinfoActivity extends BaseActivity implements IUserView {
                 .show();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AppController.getInstance().cancelPendingRequests(tag_string_req);
+    }
 }

@@ -1,25 +1,43 @@
 package cn.hwwwwh.lexiangdaxue.SelltementClass.bean;
 
+import java.util.List;
+
 /**
- * Created by 97481 on 2016/12/4.
+ * Created by 97481 on 2017/10/14/ 0014.
  */
-public class Time {
-    private int beginTime;
-    private int keepTime;
 
-    public int getBeginTime() {
-        return beginTime;
+public class Time  {
+
+    /**
+     * hour : 22
+     * min : 51
+     */
+
+    private String hour;
+    private String min;
+    private SelectTime Time;
+
+    public String getHour() {
+        return hour;
     }
 
-    public void setBeginTime(int beginTime) {
-        this.beginTime = beginTime;
+    public void setHour(String hour) {
+        this.hour = hour;
     }
 
-    public int getKeepTime() {
-        return keepTime;
+    public String getMin() {
+        return min;
     }
 
-    public void setKeepTime(int keepTime) {
-        this.keepTime = keepTime;
+    public void setMin(String min) {
+        this.min = min;
+    }
+
+    public SelectTime getTime() {
+        return Time;
+    }
+
+    public void setTime(SelectTime time) {
+        Time = time;
     }
 }

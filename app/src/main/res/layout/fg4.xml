@@ -78,7 +78,7 @@
                 <TextView
                     android:id="@+id/user"
                     android:background="@drawable/conner_mine"
-                    android:text="hwh123145465"
+                    android:text="用户名"
                     android:layout_marginTop="10dp"
                     android:textColor="@color/white"
                     android:layout_gravity="center"

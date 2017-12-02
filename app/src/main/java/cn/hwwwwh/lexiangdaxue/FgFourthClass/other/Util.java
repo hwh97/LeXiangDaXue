@@ -118,6 +118,7 @@ public class Util {
 
     public static Uri file2Uri(Context context, File file) {
         Log.d("testLexian",context.getApplicationContext().getPackageName() );
+        //此处的fileprovider应该是与mainfest中的authorities对应
         return FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".fileprovider", file);
     }
 

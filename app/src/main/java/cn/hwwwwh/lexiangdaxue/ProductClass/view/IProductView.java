@@ -15,4 +15,9 @@ public interface IProductView {
      */
     void setProductView(List<Product> products);
 
+    /**
+     *
+     */
+    void setFailView();
+
 }

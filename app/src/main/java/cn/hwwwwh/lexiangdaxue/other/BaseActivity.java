@@ -7,6 +7,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.bumptech.glide.Glide;
+
+import java.util.HashMap;
+
+import cn.hwwwwh.lexiangdaxue.LoginRegister.SQLiteHandler;
+import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
 import me.majiajie.swipeback.SwipeBackActivity;
 
 /**
@@ -15,9 +21,17 @@ import me.majiajie.swipeback.SwipeBackActivity;
 
 public abstract class BaseActivity extends SwipeBackActivity implements View.OnClickListener,View.OnTouchListener {
 
+    private SessionManager session;
+    private SQLiteHandler db;
+    private AppUtils appUtils;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityStackManager.getManager().push(this);
+        session=new SessionManager(this);
+        db=new SQLiteHandler(this);
+        appUtils=new AppUtils(this);
         initView(savedInstanceState);
         setListener();
         processLogic(savedInstanceState);
@@ -61,6 +75,15 @@ public abstract class BaseActivity extends SwipeBackActivity implements View.OnC
     public void onClick(View v) {
     }
 
+    protected HashMap<String,String> getUserDetails(){
+        HashMap<String,String> userMap=db.getUserDetails();
+        return userMap;
+    }
+
+    protected String getPhoneId(){
+        return appUtils.getPesudoUniqueID();
+    }
+
 
     public boolean onTouch(View v, MotionEvent event) {
         return false;
@@ -70,4 +93,25 @@ public abstract class BaseActivity extends SwipeBackActivity implements View.OnC
         ToastUtil.show(text);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //清除缓存
+        Glide.get(this).clearMemory();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Glide.get(getApplicationContext()).clearDiskCache();
+            }
+        }).start();
+    }
+
+    /**
+     * 回调函数
+     */
+    public LifeCycleListener mListener;
+
+    public void setOnLifeCycleListener(LifeCycleListener listener) {
+        mListener = listener;
+    }
 }

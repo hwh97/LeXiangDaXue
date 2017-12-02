@@ -6,6 +6,7 @@ package cn.hwwwwh.lexiangdaxue.ImageLoader;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,6 +19,7 @@ import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -113,11 +115,22 @@ public class SelectPhotoAdapter extends ArrayAdapter<SelectPhotoAdapter.SelectPh
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
-
                     mfile1 = new File(dir, cameraPhotoUrl);
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mfile1));//在这里告诉相机你应该把拍好的照片放在什么位置
-                    mActivity.startActivityForResult(intent, REQ_CAMARA);
+                    int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+                    Log.e("currentapiVersion","currentapiVersion====>"+currentapiVersion);
+                    if (currentapiVersion<24){
+                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mfile1));//在这里告诉相机你应该把拍好的照片放在什么位置
+                        mActivity.startActivityForResult(intent, REQ_CAMARA);
+                    }else{
+                        ContentValues contentValues = new ContentValues(1);
+                        contentValues.put(MediaStore.Images.Media.DATA, mfile1.getAbsolutePath());
+                        Uri uri = getContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,contentValues);
+                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                        mActivity.startActivityForResult(intent, REQ_CAMARA);
+                    }
+
                 }
             });
         } else if((allPhotoList != null) && (position >= 0) && (allPhotoList.size() >= position) && (allPhotoList.get(position-1) != null)){
@@ -138,6 +151,7 @@ public class SelectPhotoAdapter extends ArrayAdapter<SelectPhotoAdapter.SelectPh
         }
         return convertView;
     }
+
 
     @Override
     public void onClick(View v) {

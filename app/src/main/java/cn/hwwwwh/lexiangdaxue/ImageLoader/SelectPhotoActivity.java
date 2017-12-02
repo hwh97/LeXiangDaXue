@@ -10,12 +10,16 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -41,6 +45,8 @@ public class SelectPhotoActivity extends AppCompatActivity implements SelectPhot
     RelativeLayout rl_album;
     ListView lv_albumlist;
     ImageView iv_showalbum;
+    AlertDialog.Builder builder;
+    AlertDialog dialog;
     AlxPermissionHelper permissionHelper = new AlxPermissionHelper();
     ArrayList<SelectPhotoAdapter.SelectPhotoEntity> selectedPhotoList = null;//用于放置即将要发送的photo
     private AlbumListAdapter albumListAdapter;
@@ -74,6 +80,25 @@ public class SelectPhotoActivity extends AppCompatActivity implements SelectPhot
         findViewById(R.id.tv_cancel).setOnClickListener(this);
         tv_done.setText("确定("+allPhotoAdapter.selectedPhotosSet.size()+"/"+(9-selectedPhotoNum)+")");
         //检查权限,获取权限之后将手机所有注册图片搜索出来，并按照相册进行分类
+        builder= new AlertDialog.Builder(this);
+        dialog =builder
+                .setMessage("app需要开启权限才能使用此功能")
+                .setPositiveButton("设置", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        intent.setData(Uri.parse("package:" + getPackageName()));
+                        startActivity(intent);
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .create();
+        permissionHelper.setAlertDialog(dialog);
         permissionHelper.checkPermission(this, new AlxPermissionHelper.AskPermissionCallBack() {
             @Override
             public void onSuccess() {
@@ -129,10 +154,68 @@ public class SelectPhotoActivity extends AppCompatActivity implements SelectPhot
                     }
                 });
             }
+        });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("testLexiang","111");
+        permissionHelper.checkPermission(this, new AlxPermissionHelper.AskPermissionCallBack() {
             @Override
-            public void onFailed() {
-                SelectPhotoActivity.this.finish();
+            public void onSuccess() {
+                dialog.dismiss();
+                //扫描手机上500张最近注册过的图片
+                SelectPhotoAdapter.get500PhotoFromLocalStorage(SelectPhotoActivity.this, new SelectPhotoAdapter.LookUpPhotosCallback() {
+                    @Override
+                    public void onSuccess(ArrayList<SelectPhotoAdapter.SelectPhotoEntity> photoArrayList) {
+                        if(photoArrayList == null || photoArrayList.size() ==0)return;
+                        Log.i("Alex","查找500张图片成功,数量是"+photoArrayList.size());
+                        allPhotoAdapter.allPhotoList.clear();
+                        allPhotoAdapter.allPhotoList.addAll(photoArrayList);
+                        allPhotoAdapter.notifyDataSetChanged();
+                        //添加一个默认的相册用来存放这最近的500张图片
+                        AlbumBean defaultAlbum = new AlbumBean();
+                        defaultAlbum.albumFolder = Environment.getExternalStorageDirectory();
+                        Log.i("Alex","folder是"+defaultAlbum.albumFolder.getAbsolutePath());
+                        defaultAlbum.topImagePath = photoArrayList.get(0).url;
+                        defaultAlbum.imageCounts = photoArrayList.size();
+                        defaultAlbum.folderName = "Recently";
+                        albumList.add(0,defaultAlbum);
+                        if(albumListAdapter != null){//这个回调优先于查找相册回调
+                            Log.i("Alex","500张图片落后回调");
+                            albumListAdapter.notifyDataSetChanged();
+                        }
+                    }
+                });
+                //查找并设置手机上的所有相册
+                AlbumBean.getAllAlbumFromLocalStorage(SelectPhotoActivity.this, new AlbumBean.AlbumListCallback() {
+                    @Override
+                    public void onSuccess(ArrayList<AlbumBean> result) {
+                        albumList.addAll(result);
+                        albumListAdapter = new AlbumListAdapter(SelectPhotoActivity.this,albumList);
+                        lv_albumlist.setAdapter(albumListAdapter);
+                    }
+                });
+                lv_albumlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        if(albumList!=null && position < albumList.size() && albumList.get(position) != null){//满足条件才能set
+                            tv_album_name.setText(albumList.get(position).folderName);
+                        }
+                        isShowAlbum=false;
+                        hideAlbum();
+                        AlbumBean.getAlbumPhotosFromLocalStorage(SelectPhotoActivity.this, albumList.get(position), new AlbumBean.AlbumPhotosCallback() {
+                            @Override
+                            public void onSuccess(ArrayList<SelectPhotoAdapter.SelectPhotoEntity> photos) {
+                                Log.i("Alex","new photo list是"+photos);
+                                allPhotoAdapter.allPhotoList.clear();//因为是ArrayAdapter，所以引用不能重置
+                                allPhotoAdapter.allPhotoList.addAll(photos);
+                                allPhotoAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                });
             }
         });
     }

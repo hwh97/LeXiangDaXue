@@ -39,7 +39,7 @@ public class WebViewActivity extends BaseActivity {
     private RelativeLayout bottom_view;
 
     //清除tmall页面广告
-    private static String noAdTmall="javascript:function setTop(){if(document.querySelector('#detail-base-smart-banner').style.display !='none' || document.querySelector('.app-download-popup.smally.show').style.display !=\"none\"){document.querySelector('#detail-base-smart-banner').style.display=\"none\";document.querySelector('#content.pt85').style.paddingTop='41px';document.querySelector('.app-download-popup.smally.show').style.display=\"none\";}}window.setInterval(setTop, 0);";
+    private static String noAdTmall="javascript:function setTop(){if(document.querySelector('#J_smartjump').style.display !='none'){document.querySelector('#J_smartjump').style.display=\"none\";document.querySelector('#content.pt44').style.paddingTop='0px';}}window.setInterval(setTop, 0);";
     //清除tmall首页广告
     protected static String noAdTmallIndex="javascript:function setIndex(){if(document.querySelector('#J_BottomSmartBanner').style.display!='none' || document.querySelector('.app-download-popup.smally.show').style.display!='none' ){document.querySelector('#J_BottomSmartBanner').style.display=\"none\";document.querySelector('.app-download-popup.smally.show').style.display=\"none\";}} window.setInterval(setIndex, 0);";
     //清除淘宝广告js

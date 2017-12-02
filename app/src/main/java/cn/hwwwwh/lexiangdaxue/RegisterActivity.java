@@ -3,9 +3,14 @@ package cn.hwwwwh.lexiangdaxue;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -26,11 +31,12 @@ import cn.hwwwwh.lexiangdaxue.LoginRegister.AppController;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SQLiteHandler;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
 import cn.hwwwwh.lexiangdaxue.other.AppConfig;
+import cn.hwwwwh.lexiangdaxue.other.BaseActivity;
 
 /**
  * Created by 97481 on 2016/10/16.
  */
-public class RegisterActivity extends Activity implements View.OnClickListener {
+public class RegisterActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = RegisterActivity.class.getSimpleName();
     private Button btnRegister;
     private TextView btnLinkToLogin;
@@ -40,16 +46,42 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
     private ProgressDialog pDialog;
     private SessionManager session;
     private SQLiteHandler db;
+    private Toolbar toolbar;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void initView(Bundle savedInstanceState) {
         setContentView(R.layout.register);
         inputFullName = (EditText) findViewById(R.id.name);
         inputEmail = (EditText) findViewById(R.id.email);
         inputPassword = (EditText) findViewById(R.id.password);
         btnRegister = (Button) findViewById(R.id.btnRegister);
         btnLinkToLogin = (TextView) findViewById(R.id.btnLinkToLoginScreen);
+        toolbar=getViewById(R.id.register_toolbar);
+    }
 
+    @Override
+    protected void setListener() {
+        btnRegister.setOnClickListener(this);
+        btnLinkToLogin.setOnClickListener(this);
+    }
+
+    @Override
+    protected void processLogic(Bundle savedInstanceState) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor("#4169E1"));
+        }
+        toolbar.setTitle("注册");
+        toolbar.setTitleTextColor(Color.WHITE);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_keyboard_backsoace_24dp1_white);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         // Progress dialog
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
@@ -66,9 +98,8 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
             startActivity(intent);
             finish();
         }
-        btnRegister.setOnClickListener(this);
-        btnLinkToLogin.setOnClickListener(this);
     }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -125,7 +156,7 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
                                 .getString("created_at");
 
                         // Inserting row in users table
-                        db.addUser(name, email, uid, created_at);
+                       // db.addUser(name, email, uid, created_at);
 
                         Toast.makeText(getApplicationContext(), "User successfully registered. Try login now!", Toast.LENGTH_LONG).show();
                         // Launch(发射) login activity

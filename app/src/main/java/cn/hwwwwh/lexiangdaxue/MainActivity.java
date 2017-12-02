@@ -6,15 +6,29 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.RadioButton;
 
+import com.bumptech.glide.DrawableTypeRequest;
+import com.bumptech.glide.Glide;
+
+import cn.hwwwwh.lexiangdaxue.FgFourthClass.bean.userBean;
+import cn.hwwwwh.lexiangdaxue.FgSecondClass.fragment.GuideTwoFragment;
+import cn.hwwwwh.lexiangdaxue.FgThirdClass.fragment.GuideThirdFragment;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SQLiteHandler;
 import cn.hwwwwh.lexiangdaxue.LoginRegister.SessionManager;
 import cn.hwwwwh.lexiangdaxue.fragment.GuideFragmentAdapter;
+import cn.hwwwwh.lexiangdaxue.other.RxBus;
+import cn.hwwwwh.lexiangdaxue.other.ToastUtil;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import jp.wasabeef.glide.transformations.BlurTransformation;
 
 public class MainActivity extends FragmentActivity implements View.OnClickListener {
+
     public static final int TAB_HOME = 0;
     public static final int TAB_CATAGORY = 1;
     public static final int TAB_CAR = 3;
@@ -24,6 +38,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private ViewPager viewPager;
     private RadioButton main_tab_home, main_tab_catagory, main_tab_car,main_tab_third;
     public GuideFragmentAdapter adapter;
+    private RxBus rxBus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,13 +50,47 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         setContentView(R.layout.activity_main);
         initView();
         addListener();
+        initRxBus();
+    }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if(intent.getExtras()!=null){
+            viewPager.setCurrentItem(intent.getExtras().getInt("order"));
+            ((GuideThirdFragment)adapter.getItem(2)).initTab();
+        }
+    }
+
+    private void initRxBus() {
+        rxBus = RxBus.getIntanceBus();
+        registerRxBus(Integer.class, new Consumer<Integer>() {
+            @Override
+            public void accept(Integer integer) throws Exception {
+                ((GuideThirdFragment)adapter.getItem(2)).initTab();
+                ((GuideTwoFragment)adapter.getItem(1)).loadTab();
+                viewPager.setCurrentItem(integer);
+            }
+
+        });
+    }
+
+    //注册
+    public <T> void registerRxBus(Class<T> eventType, Consumer<T> action) {
+        Disposable disposable = rxBus.doSubscribe(eventType, action, new Consumer<Throwable>() {
+            @Override
+            public void accept(@NonNull Throwable throwable) throws Exception {
+                Log.e("NewsMainPresenter", throwable.toString());
+            }
+        });
+        rxBus.addSubscription(this,disposable);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
        // super.onSaveInstanceState(outState);
     }
+
 
     private void initView() {
         viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -156,7 +205,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 //if logged keep way
                 if (!session.isLoggedIn()) {
                     logoutUser();
-
                 }
                 else {
                     viewPager.setCurrentItem(TAB_THIRD);
@@ -175,4 +223,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         startActivity(intent);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        rxBus.unSubscribe(this);
+    }
 }

@@ -15,6 +15,7 @@ import cn.hwwwwh.lexiangdaxue.ProductClass.presenter.IDownloadActivityPresenter;
 import cn.hwwwwh.lexiangdaxue.R;
 import cn.hwwwwh.lexiangdaxue.ShoppingClass.presenter.IDownloadQuansPresenter;
 import cn.hwwwwh.lexiangdaxue.other.HttpUtils;
+import cn.hwwwwh.lexiangdaxue.other.ParserJson;
 import cn.hwwwwh.lexiangdaxue.other.ToastUtil;
 
 import static cn.hwwwwh.lexiangdaxue.other.ParserJson.parserJsonToCategory;
@@ -70,8 +71,9 @@ public class DownloadActivityModel implements IDownloadActivityModel {
             byte[] b = HttpUtils.downloadFromNet(params[0]);  //可变参数params当成一个数组使用，其中的params[0]就是我们传递过来的参数
             String jsonString = new String(b);
             Log.d("Tag", jsonString);
-            list = parserJsonToCategory(jsonString);
-            Log.d("Tag", list.toString());
+            if (ParserJson.isError(jsonString)) {
+                list = parserJsonToCategory(jsonString);
+            }
             return list;
         }
     }

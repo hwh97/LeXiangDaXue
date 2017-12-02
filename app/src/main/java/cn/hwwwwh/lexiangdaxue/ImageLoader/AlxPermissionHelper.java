@@ -18,6 +18,12 @@ import android.util.Log;
  */
 public class AlxPermissionHelper {
     private AskPermissionCallBack callBack = null;
+    private AlertDialog.Builder builder;
+    private AlertDialog alertDialog;
+
+    public void setAlertDialog(AlertDialog alertDialog) {
+        this.alertDialog = alertDialog;
+    }
 
     public void checkPermission(final Activity activity, final AskPermissionCallBack callBack){
         this.callBack = callBack;
@@ -26,24 +32,7 @@ public class AlxPermissionHelper {
             if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 //以前被拒绝授予权限，而且不再提示
                 Log.i("Alex","以前被拒绝授予权限，而且不再提示");
-                new AlertDialog.Builder(activity)
-                        .setMessage("app需要开启权限才能使用此功能")
-                        .setPositiveButton("设置", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                intent.setData(Uri.parse("package:" + activity.getPackageName()));
-                                activity.startActivity(intent);
-                            }
-                        })
-                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if(callBack != null)callBack.onFailed();
-                            }
-                        })
-                        .create()
-                        .show();
+                alertDialog.show();
             } else {
                 //申请权限
                 Log.i("Alex","准备首次申请权限");
@@ -51,13 +40,15 @@ public class AlxPermissionHelper {
             }
         } else {
             //已经拥有权限
-            if(callBack != null)callBack.onSuccess();
+            if(callBack != null) {
+                callBack.onSuccess();
+                alertDialog.dismiss();
+            }
         }
     }
 
     interface AskPermissionCallBack{
         void onSuccess();
-        void onFailed();
     }
 
     /**

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by qibin on 2015/11/5.
@@ -20,9 +21,12 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<Recycl
     public static final int TYPE_HEADER = 0;
     public static final int TYPE_NORMAL = 1;
 
-    private ArrayList<T> mDatas = new ArrayList<>();
+    private List<T> mDatas = new ArrayList<>();
 
     private View mHeaderView;
+
+    private View mFooterView;
+
 
     private OnItemClickListener mListener;
 
@@ -35,11 +39,16 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<Recycl
         notifyItemInserted(0);
     }
 
+    public void setmFooterView(View footerView){
+        mFooterView=footerView;
+        notifyItemInserted(mDatas.size());
+    }
+
     public View getHeaderView() {
         return mHeaderView;
     }
 
-    public void addDatas(ArrayList<T> datas) {
+    public void addDatas(List<T> datas) {
         mDatas.addAll(datas);
         notifyDataSetChanged();
     }

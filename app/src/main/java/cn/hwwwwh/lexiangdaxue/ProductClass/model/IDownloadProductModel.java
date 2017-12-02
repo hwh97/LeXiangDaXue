@@ -9,6 +9,6 @@ public interface IDownloadProductModel {
     /**
      * @param url
      */
-    void downloadProduct(String url, String category);
+    void downloadProduct(String url);
 
 }
